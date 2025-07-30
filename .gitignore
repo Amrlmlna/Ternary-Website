@@ -1,0 +1,39 @@
+# Next.js build output
+.next/
+out/
+
+# Node modules
+node_modules/
+
+# Environment variables
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDE specific files
+.vscode/ # For VS Code
+.idea/   # For WebStorm/IntelliJ IDEA
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Optional: If you use a specific package manager's cache
+.pnp/
+.pnp.js
+
+# Optional: If you use a specific testing framework's coverage reports
+coverage/
+
+# Optional: If you use Storybook
+storybook-static/
+
+# Optional: If you use Playwright
+test-results/

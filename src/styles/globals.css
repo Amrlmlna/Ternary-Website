@@ -1,0 +1,267 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+:root {
+  --neu-bg: #f4f5fa;
+  --neu-bg-hover: #f8fafc;
+  --neu-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.18),
+    0 1.5px 4px 0 rgba(0, 0, 0, 0.1);
+  --neu-shadow-inset: inset 8px 8px 24px #e0e2e7, inset -8px -8px 24px #ffffff;
+  --neu-radius: 18px;
+  --neu-border: #e0e2e7;
+  --neu-text: #23272f;
+}
+
+.dark {
+  --neu-bg: #212121;
+  --neu-text: #fff;
+  --neu-border: #212121;
+  --neu-shadow: 6px 6px 12px #000, -6px -6px 12px #2f2f2f;
+  --neu-shadow-inset: inset 4px 4px 12px #000, inset -4px -4px 12px #1f1f1f;
+}
+
+body {
+  background: var(--neu-bg);
+  color: var(--neu-text);
+  font-family: "Poppins", "Space Grotesk", sans-serif;
+  transition: background 0.3s, color 0.3s;
+}
+
+.neu-bg {
+  background: var(--neu-bg);
+}
+.neu-shadow {
+  box-shadow: var(--neu-shadow);
+}
+.neu-shadow-inset {
+  box-shadow: var(--neu-shadow-inset);
+}
+.neu-radius {
+  border-radius: var(--neu-radius);
+}
+
+/* === NEUMORPHISM BUTTON === */
+.neu-btn {
+  @apply neu-bg neu-shadow-inset neu-radius border border-[var(--neu-border)] text-[var(--neu-text)] font-semibold px-5 py-2 outline-none;
+  transition: all 0.2s;
+  box-shadow: var(--neu-shadow-inset);
+}
+.neu-btn:hover:not(:disabled) {
+  opacity: 0.95;
+  box-shadow: var(--neu-shadow);
+  transform: scale(1.03);
+}
+.neu-btn:active:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: var(--neu-shadow);
+  transform: scale(0.97);
+}
+.neu-btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Accent variant (optional highlight) */
+.neu-btn-accent {
+  border: 1.5px solid var(--neu-border);
+  color: var(--neu-text);
+  background: var(--neu-bg);
+}
+.neu-btn-accent:hover:not(:disabled),
+.neu-btn-accent:active:not(:disabled) {
+  background: var(--neu-bg);
+  color: var(--neu-text);
+  box-shadow: var(--neu-shadow);
+}
+
+/* === INPUT STYLES === */
+.neu-input {
+  @apply neu-bg neu-shadow-inset neu-radius border border-[var(--neu-border)] text-[var(--neu-text)] px-4 py-3 outline-none;
+  transition: all 0.2s;
+  box-shadow: var(--neu-shadow-inset);
+}
+
+.neu-input:focus {
+  box-shadow: var(--neu-shadow);
+  border-color: var(--neu-border);
+}
+
+.neu-input::placeholder {
+  color: var(--neu-text);
+  opacity: 0.5;
+}
+
+/* === MODAL STYLES === */
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* === RESPONSIVE UTILITIES === */
+@media (max-width: 768px) {
+  .neu-shadow {
+    box-shadow: 4px 4px 8px #c5c5c5, -4px -4px 8px #ffffff;
+  }
+
+  .dark .neu-shadow {
+    box-shadow: 4px 4px 8px #000, -4px -4px 8px #2f2f2f;
+  }
+}
+
+/* === SCROLLBAR STYLES === */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--neu-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--neu-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neu-border);
+}
+
+/* === FOCUS STYLES === */
+*:focus-visible {
+  outline: 2px solid var(--neu-border);
+  outline-offset: 2px;
+}
+
+/* === LOADING STATES === */
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--neu-bg) 0%,
+    var(--neu-border) 50%,
+    var(--neu-bg) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* === ACCESSIBILITY === */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  --neu-bg: #ffffff;
+  --neu-text: #000000;
+  --neu-border: #000000;
+  --neu-shadow: 2px 2px 4px #000000;
+  --neu-shadow-inset: inset 2px 2px 4px #000000;
+}
+
+.high-contrast.dark {
+  --neu-bg: #000000;
+  --neu-text: #ffffff;
+  --neu-border: #ffffff;
+  --neu-shadow: 2px 2px 4px #ffffff;
+  --neu-shadow-inset: inset 2px 2px 4px #ffffff;
+}
+
+/* Reduced Motion */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Focus Indicators */
+*:focus-visible {
+  outline: 3px solid var(--neu-border);
+  outline-offset: 2px;
+}
+
+/* Skip Links */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--neu-border);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Screen Reader Only Text */
+.sr-only-text {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.neu-box {
+  background: var(--neu-bg);
+  border-radius: var(--neu-radius);
+  box-shadow: var(--neu-shadow-inset);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.neu-box:hover {
+  box-shadow: var(--neu-shadow);
+  transform: scale(1.03);
+}
