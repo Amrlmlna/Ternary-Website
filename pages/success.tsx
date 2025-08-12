@@ -12,19 +12,20 @@ export default function SuccessPage() {
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
+  const apiKeyParam = searchParams.get("apiKey");
 
   useEffect(() => {
-    // Simulate API key generation
-    const generateApiKey = () => {
-      const key = `ternary_${Math.random()
-        .toString(36)
-        .substring(2, 15)}_${Math.random().toString(36).substring(2, 15)}`;
-      setApiKey(key);
+    // Prefer apiKey provided by backend redirect (/success?apiKey=...)
+    if (apiKeyParam) {
+      setApiKey(apiKeyParam);
       setLoading(false);
-    };
+      return;
+    }
 
-    setTimeout(generateApiKey, 1500);
-  }, []);
+    // If no apiKey param, we can optionally try to look up by sessionId in future.
+    // For now, do not fabricate an API key.
+    setLoading(false);
+  }, [apiKeyParam, sessionId]);
 
   const copyApiKey = () => {
     navigator.clipboard.writeText(apiKey);
@@ -81,7 +82,9 @@ export default function SuccessPage() {
             <p
               className={`mb-8 ${darkMode ? "text-gray-300" : "text-gray-600"}`}
             >
-              Welcome to Ternary Pro! Your API key has been generated.
+              {apiKey
+                ? "Welcome to Ternary Pro! Your API key is ready."
+                : "We couldn't find your API key on this page. Please return to the app or contact support if this persists."}
             </p>
 
             {loading ? (
@@ -105,7 +108,7 @@ export default function SuccessPage() {
                   ></div>
                 </div>
               </div>
-            ) : (
+            ) : apiKey ? (
               <div
                 className={`p-4 rounded-2xl mb-6 ${
                   darkMode
@@ -147,14 +150,31 @@ export default function SuccessPage() {
                   </p>
                 )}
               </div>
+            ) : (
+              <div
+                className={`p-4 rounded-2xl mb-6 ${
+                  darkMode
+                    ? "bg-[#1a1a1a] shadow-[inset_4px_4px_8px_#0f0f0f,inset_-4px_-4px_8px_#252525]"
+                    : "bg-[#f0f0f0] shadow-[inset_4px_4px_8px_#d1d1d1,inset_-4px_-4px_8px_#ffffff]"
+                }`}
+              >
+                <p
+                  className={`text-sm ${
+                    darkMode ? "text-red-400" : "text-red-600"
+                  }`}
+                >
+                  Missing API key. Please ensure you reached this page via the
+                  payment flow.
+                </p>
+              </div>
             )}
 
             <div className="space-y-3">
               <button
                 onClick={openTernaryApp}
-                disabled={loading}
+                disabled={loading || !apiKey}
                 className={`w-full py-3 px-6 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${
-                  loading
+                  loading || !apiKey
                     ? "opacity-50 cursor-not-allowed"
                     : darkMode
                     ? "bg-[#1a1a1a] shadow-[8px_8px_16px_#0f0f0f,-8px_-8px_16px_#252525] hover:shadow-[inset_8px_8px_16px_#0f0f0f,inset_-8px_-8px_16px_#252525] text-white"
