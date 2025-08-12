@@ -15,7 +15,6 @@ export default function SuccessPage() {
   const apiKeyParam = searchParams.get("apiKey");
 
   useEffect(() => {
-    // Prefer apiKey provided by backend redirect (/success?apiKey=...)
     if (apiKeyParam) {
       setApiKey(apiKeyParam);
       setLoading(false);
