@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Menu, X, Github, LogIn, User, Sun, Moon } from "lucide-react";
 import Image from "next/image";
-import AuthModal from "./auth-modal";
+import AuthModal from "./AuthModal";
 import { useAuth } from "../src/contexts/AuthContext";
 import { useRouter } from "next/router";
 

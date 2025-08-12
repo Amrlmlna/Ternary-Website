@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Download, Monitor, ArrowRight } from "lucide-react";
-import BackgroundPaths from "./ui/background-paths";
+import BackgroundPaths from "./ui/BackgroundPath";
 
 interface DownloadAsset {
   name: string;

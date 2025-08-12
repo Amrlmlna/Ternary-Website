@@ -1,8 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { MessageCircle, Mail, Book, Search, HelpCircle, ExternalLink, Clock, CheckCircle } from "lucide-react";
-import Navbar from "@/components/navbar";
+import {
+  MessageCircle,
+  Mail,
+  Book,
+  Search,
+  HelpCircle,
+  ExternalLink,
+  Clock,
+  CheckCircle,
+} from "lucide-react";
+import Navbar from "@/components/Navbar";
 
 export default function SupportPage() {
   const [darkMode, setDarkMode] = useState(true);
@@ -11,7 +20,8 @@ export default function SupportPage() {
   const supportChannels = [
     {
       name: "Live Chat",
-      description: "Get instant help from our support team during business hours.",
+      description:
+        "Get instant help from our support team during business hours.",
       icon: MessageCircle,
       availability: "Mon-Fri, 9AM-6PM PST",
       responseTime: "< 5 minutes",
@@ -20,7 +30,8 @@ export default function SupportPage() {
     },
     {
       name: "Email Support",
-      description: "Send us detailed questions and we'll get back to you promptly.",
+      description:
+        "Send us detailed questions and we'll get back to you promptly.",
       icon: Mail,
       availability: "24/7",
       responseTime: "< 24 hours",
@@ -51,7 +62,8 @@ export default function SupportPage() {
     },
     {
       question: "Can I use Ternary offline?",
-      answer: "Yes, Ternary supports local AI models that can run completely offline on your machine.",
+      answer:
+        "Yes, Ternary supports local AI models that can run completely offline on your machine.",
     },
     {
       question: "How do I upgrade to Pro?",
@@ -60,35 +72,52 @@ export default function SupportPage() {
     },
     {
       question: "Is my data secure with Ternary?",
-      answer: "Absolutely. We use end-to-end encryption and never store your code or personal data on our servers.",
+      answer:
+        "Absolutely. We use end-to-end encryption and never store your code or personal data on our servers.",
     },
     {
       question: "Can I cancel my subscription anytime?",
-      answer: "Yes, you can cancel your subscription at any time from your account settings. No questions asked.",
+      answer:
+        "Yes, you can cancel your subscription at any time from your account settings. No questions asked.",
     },
   ];
 
   const filteredFAQ = faqItems.filter(
     (item) =>
       item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.answer.toLowerCase().includes(searchQuery.toLowerCase()),
+      item.answer.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div
-      className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-[#0f0f0f] text-white" : "bg-[#f5f5f5] text-black"}`}
+      className={`min-h-screen transition-colors duration-300 ${
+        darkMode ? "bg-[#0f0f0f] text-white" : "bg-[#f5f5f5] text-black"
+      }`}
     >
-      <Navbar darkMode={darkMode} onDownloadClick={() => {}} onThemeToggle={() => setDarkMode(!darkMode)} />
+      <Navbar
+        darkMode={darkMode}
+        onDownloadClick={() => {}}
+        onThemeToggle={() => setDarkMode(!darkMode)}
+      />
 
       <div className="pt-20 pb-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-16">
-            <h1 className={`text-4xl md:text-5xl font-bold mb-6 ${darkMode ? "text-white" : "text-black"}`}>
+            <h1
+              className={`text-4xl md:text-5xl font-bold mb-6 ${
+                darkMode ? "text-white" : "text-black"
+              }`}
+            >
               How can we help you?
             </h1>
-            <p className={`text-lg md:text-xl max-w-3xl mx-auto ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-              Get the support you need to make the most of Ternary. We're here to help you succeed.
+            <p
+              className={`text-lg md:text-xl max-w-3xl mx-auto ${
+                darkMode ? "text-gray-300" : "text-gray-600"
+              }`}
+            >
+              Get the support you need to make the most of Ternary. We're here
+              to help you succeed.
             </p>
           </div>
 
@@ -133,7 +162,11 @@ export default function SupportPage() {
 
           {/* FAQ Section */}
           <div>
-            <h2 className={`text-3xl font-bold text-center mb-8 ${darkMode ? "text-white" : "text-black"}`}>
+            <h2
+              className={`text-3xl font-bold text-center mb-8 ${
+                darkMode ? "text-white" : "text-black"
+              }`}
+            >
               Frequently Asked Questions
             </h2>
 
@@ -169,8 +202,12 @@ export default function SupportPage() {
                   <div className="flex items-start gap-4">
                     <HelpCircle className="w-6 h-6 mt-1 opacity-50 flex-shrink-0" />
                     <div>
-                      <h3 className="text-lg font-semibold mb-3">{item.question}</h3>
-                      <p className="text-sm opacity-70 leading-relaxed">{item.answer}</p>
+                      <h3 className="text-lg font-semibold mb-3">
+                        {item.question}
+                      </h3>
+                      <p className="text-sm opacity-70 leading-relaxed">
+                        {item.answer}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -179,7 +216,9 @@ export default function SupportPage() {
 
             {filteredFAQ.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-lg opacity-50">No FAQ items match your search.</p>
+                <p className="text-lg opacity-50">
+                  No FAQ items match your search.
+                </p>
               </div>
             )}
           </div>

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Navbar from "@/components/navbar";
-import HeroSection from "@/components/hero-section";
-import PricingSection from "@/components/pricing-section";
+import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import PricingSection from "@/components/PricingSection";
 
 export default function TernaryLanding() {
   const [darkMode, setDarkMode] = useState(false);

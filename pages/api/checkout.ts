@@ -1,8 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 
-// Use the Stripe SDK's default API version to avoid type mismatches during builds
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+  apiVersion: "2025-07-30.basil",
+});
 
 const PRICING = {
   hobby: {
@@ -65,21 +66,23 @@ export default async function handler(
     let price;
     try {
       price = await stripe.prices.retrieve(priceId);
-      if (process.env.NODE_ENV !== "production") console.log("Stripe price retrieved:", {
-        id: price.id,
-        active: price.active,
-        currency: price.currency,
-        recurring: price.recurring ? {
-          interval: price.recurring.interval,
-          interval_count: price.recurring.interval_count,
-        } : null,
-        type: price.type,
-      });
+      if (process.env.NODE_ENV !== "production")
+        console.log("Stripe price retrieved:", {
+          id: price.id,
+          active: price.active,
+          currency: price.currency,
+          recurring: price.recurring
+            ? {
+                interval: price.recurring.interval,
+                interval_count: price.recurring.interval_count,
+              }
+            : null,
+          type: price.type,
+        });
     } catch (preErr: any) {
       console.error("Stripe price retrieve error:", preErr);
       return res.status(500).json({
-        error:
-          `Stripe price not found or not accessible: ${priceId}. Ensure the ID exists under the same Stripe account as STRIPE_SECRET_KEY and in the correct mode (test vs live).`,
+        error: `Stripe price not found or not accessible: ${priceId}. Ensure the ID exists under the same Stripe account as STRIPE_SECRET_KEY and in the correct mode (test vs live).`,
       });
     }
 
@@ -108,7 +111,8 @@ export default async function handler(
       customer_email: req.body.email, // Capture email if provided
     });
 
-    if (process.env.NODE_ENV !== "production") console.log("Stripe session created:", session.id);
+    if (process.env.NODE_ENV !== "production")
+      console.log("Stripe session created:", session.id);
     return res.status(200).json({ url: session.url });
   } catch (err: any) {
     console.error("Stripe error:", err);

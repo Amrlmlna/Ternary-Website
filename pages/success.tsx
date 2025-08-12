@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle, Copy, ExternalLink } from "lucide-react";
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/Navbar";
 
 export default function SuccessPage() {
   const [darkMode, setDarkMode] = useState(false);

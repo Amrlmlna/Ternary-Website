@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { buffer } from "micro";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-06-30.basil",
+  apiVersion: "2025-07-30.basil",
 });
 
 // Supabase removed. All user/key info now comes from LiteLLM only.
@@ -94,14 +94,14 @@ export default async function handler(
       // Redirect to Ternary app with deep link
       const deepLinkUrl = `ternary://ternary-pro-return?key=${apiKey}`;
       console.log("🔗 Redirecting to deep link:", deepLinkUrl);
-      
+
       // Juga siapkan URL untuk halaman success sebagai fallback
-      const host = req.headers.host || 'ternary.app';
-      const protocol = /^localhost/.test(host) ? 'http' : 'https';
-      const successUrl = new URL('/success', `${protocol}://${host}`);
-      successUrl.searchParams.append('apiKey', apiKey);
+      const host = req.headers.host || "ternary.app";
+      const protocol = /^localhost/.test(host) ? "http" : "https";
+      const successUrl = new URL("/success", `${protocol}://${host}`);
+      successUrl.searchParams.append("apiKey", apiKey);
       // Tidak perlu menambahkan email lagi
-      
+
       // Return success with redirect URL (do NOT redirect from backend)
       return res.status(200).json({
         success: true,

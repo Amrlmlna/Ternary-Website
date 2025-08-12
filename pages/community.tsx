@@ -1,8 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Users, MessageCircle, Github, Twitter, DiscIcon as Discord, Send, Clock, User } from "lucide-react";
-import Navbar from "@/components/navbar";
+import {
+  Users,
+  MessageCircle,
+  Github,
+  Twitter,
+  DiscIcon as Discord,
+  Send,
+  Clock,
+  User,
+} from "lucide-react";
+import Navbar from "@/components/Navbar";
 
 export default function CommunityPage() {
   const [darkMode, setDarkMode] = useState(true);
@@ -57,19 +66,34 @@ export default function CommunityPage() {
 
   return (
     <div
-      className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-[#0f0f0f] text-white" : "bg-[#f5f5f5] text-black"}`}
+      className={`min-h-screen transition-colors duration-300 ${
+        darkMode ? "bg-[#0f0f0f] text-white" : "bg-[#f5f5f5] text-black"
+      }`}
     >
-      <Navbar darkMode={darkMode} onDownloadClick={() => {}} onThemeToggle={() => setDarkMode(!darkMode)} />
+      <Navbar
+        darkMode={darkMode}
+        onDownloadClick={() => {}}
+        onThemeToggle={() => setDarkMode(!darkMode)}
+      />
 
       <div className="pt-20 pb-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className={`text-4xl md:text-5xl font-bold mb-4 ${darkMode ? "text-white" : "text-black"}`}>
+            <h1
+              className={`text-4xl md:text-5xl font-bold mb-4 ${
+                darkMode ? "text-white" : "text-black"
+              }`}
+            >
               Community
             </h1>
-            <p className={`text-lg max-w-2xl mx-auto ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-              Share your thoughts, ask questions, and connect with other Ternary users.
+            <p
+              className={`text-lg max-w-2xl mx-auto ${
+                darkMode ? "text-gray-300" : "text-gray-600"
+              }`}
+            >
+              Share your thoughts, ask questions, and connect with other Ternary
+              users.
             </p>
           </div>
 
