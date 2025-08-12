@@ -1,9 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2025-07-30.basil",
-});
+// Use the Stripe SDK's default API version to avoid type mismatches during builds
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 const PRICING = {
   hobby: {
