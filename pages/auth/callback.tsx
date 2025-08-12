@@ -13,35 +13,36 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        const { data, error } = await supabase.auth.getSession();
+        // 1) If the URL contains an OAuth/email OTP code, exchange it for a session
+        const href = typeof window !== "undefined" ? window.location.href : "";
+        if (href.includes("code=")) {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(href);
+          if (exchangeError) throw exchangeError;
 
-        if (error) {
-          throw error;
+          setStatus("success");
+          setMessage("Berhasil masuk! Mengalihkan...");
+          setTimeout(() => router.push("/"), 2000);
+          return;
         }
+
+        // 2) Otherwise check existing session
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
 
         if (data.session) {
           setStatus("success");
           setMessage("Berhasil masuk! Mengalihkan...");
-
-          // Redirect to home page after successful authentication
-          setTimeout(() => {
-            router.push("/");
-          }, 2000);
-        } else {
-          // Handle OAuth callback
-          const { error: signInError } = await supabase.auth.getUser();
-
-          if (signInError) {
-            throw signInError;
-          }
-
-          setStatus("success");
-          setMessage("Berhasil masuk! Mengalihkan...");
-
-          setTimeout(() => {
-            router.push("/");
-          }, 2000);
+          setTimeout(() => router.push("/"), 2000);
+          return;
         }
+
+        // 3) Fallback: ensure user is fetched (covers some edge cases)
+        const { error: userError } = await supabase.auth.getUser();
+        if (userError) throw userError;
+
+        setStatus("success");
+        setMessage("Berhasil masuk! Mengalihkan...");
+        setTimeout(() => router.push("/"), 2000);
       } catch (error) {
         console.error("Auth callback error:", error);
         setStatus("error");

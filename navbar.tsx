@@ -1,50 +1,38 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Menu, X, Github, LogIn, User, Sun, Moon } from "lucide-react";
-import Image from "next/image";
-import AuthModal from "./auth-modal";
-import { useAuth } from "../src/contexts/AuthContext";
-import { useRouter } from "next/router";
+import { useState } from "react"
+import { Menu, X, Github, LogIn, User, Sun, Moon } from "lucide-react"
+import Image from "next/image"
+import AuthModal from "./components/auth-modal"
 
 interface NavbarProps {
-  darkMode: boolean;
-  onDownloadClick: () => void;
-  onThemeToggle: () => void;
+  darkMode: boolean
+  onDownloadClick: () => void
+  onThemeToggle: () => void
 }
 
-export default function Navbar({
-  darkMode,
-  onDownloadClick,
-  onThemeToggle,
-}: NavbarProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user, signOut, loading } = useAuth();
-  const isAuthenticated = !!user;
-  const router = useRouter();
+export default function Navbar({ darkMode, onDownloadClick, onThemeToggle }: NavbarProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null)
 
   const navItems = [
-    { name: "Home", href: "/" },
-    { name: "Pricing", href: "#pricing" },
+    { name: "Home", href: "/" }, // Added Home navigation
+    { name: "Pricing", href: "#pricing" }, // replaced Features with Pricing
     { name: "Documentation", href: "/docs" },
-    { name: "Community", href: "/community" },
-    { name: "Support", href: "/support" },
-  ];
+    { name: "Community", href: "/community" }, // updated to proper route
+    { name: "Support", href: "/support" }, // updated to proper route
+  ]
 
   const handleLogin = () => {
-    setIsAuthModalOpen(true);
-  };
+    setIsAuthModalOpen(true)
+  }
 
   const handleLogout = () => {
-    // Use Supabase auth signOut
-    signOut()
-      .then(() => {
-        // ensure UI updates and route resets
-        router.push("/");
-      })
-      .catch((e) => console.error("Sign out error:", e));
-  };
+    setIsAuthenticated(false)
+    setUser(null)
+  }
 
   return (
     <>
@@ -115,8 +103,7 @@ export default function Navbar({
               >
                 <Github className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </a>
-              {/* Avoid flicker while auth state is loading */}
-              {loading ? null : isAuthenticated ? (
+              {isAuthenticated ? (
                 <div className="relative group">
                   <button
                     className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
@@ -126,14 +113,7 @@ export default function Navbar({
                     }`}
                   >
                     <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">
-                      {
-                        ((user as any)?.user_metadata?.full_name ||
-                          (user as any)?.user_metadata?.name ||
-                          user?.email ||
-                          "Profile") as string
-                      }
-                    </span>
+                    <span className="hidden sm:inline">{user?.name || "Profile"}</span>
                   </button>
                   <div
                     className={`absolute right-0 top-full mt-2 w-40 sm:w-48 py-2 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ${
@@ -142,10 +122,7 @@ export default function Navbar({
                         : "bg-[#e8e8e8] shadow-[8px_8px_16px_#c5c5c5,-8px_-8px_16px_#ffffff]"
                     }`}
                   >
-                    <a
-                      href="/profile"
-                      className="block px-4 py-2 text-xs sm:text-sm hover:opacity-70"
-                    >
+                    <a href="/profile" className="block px-4 py-2 text-xs sm:text-sm hover:opacity-70">
                       Profile
                     </a>
                     <button
@@ -180,11 +157,7 @@ export default function Navbar({
                   : "bg-[#e8e8e8] shadow-[2px_2px_4px_#c5c5c5,-2px_-2px_4px_#ffffff] hover:shadow-[inset_2px_2px_4px_#c5c5c5,inset_-2px_-2px_4px_#ffffff]"
               }`}
             >
-              {isMenuOpen ? (
-                <X className="w-4 h-4 sm:w-5 sm:h-5" />
-              ) : (
-                <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
-              )}
+              {isMenuOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
             </button>
           </div>
 
@@ -194,11 +167,7 @@ export default function Navbar({
               isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
             }`}
           >
-            <div
-              className={`py-4 border-t ${
-                darkMode ? "border-gray-700" : "border-gray-300"
-              }`}
-            >
+            <div className={`py-4 border-t ${darkMode ? "border-gray-700" : "border-gray-300"}`}>
               <div className="flex flex-col gap-3">
                 {/* Navigation Links */}
                 <div className="flex flex-col gap-2">
@@ -219,8 +188,8 @@ export default function Navbar({
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => {
-                        onThemeToggle();
-                        setIsMenuOpen(false);
+                        onThemeToggle()
+                        setIsMenuOpen(false)
                       }}
                       className={`p-2 rounded-lg transition-all duration-300 ${
                         darkMode
@@ -228,11 +197,7 @@ export default function Navbar({
                           : "bg-[#e8e8e8] shadow-[2px_2px_4px_#c5c5c5,-2px_-2px_4px_#ffffff] hover:shadow-[inset_2px_2px_4px_#c5c5c5,inset_-2px_-2px_4px_#ffffff]"
                       }`}
                     >
-                      {darkMode ? (
-                        <Sun className="w-4 h-4" />
-                      ) : (
-                        <Moon className="w-4 h-4" />
-                      )}
+                      {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                     </button>
                     <a
                       href="https://github.com/TernaryStudio/Ternary-App"
@@ -251,8 +216,8 @@ export default function Navbar({
                   {isAuthenticated ? (
                     <button
                       onClick={() => {
-                        handleLogout();
-                        setIsMenuOpen(false);
+                        handleLogout()
+                        setIsMenuOpen(false)
                       }}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                         darkMode
@@ -266,8 +231,8 @@ export default function Navbar({
                   ) : (
                     <button
                       onClick={() => {
-                        handleLogin();
-                        setIsMenuOpen(false);
+                        handleLogin()
+                        setIsMenuOpen(false)
                       }}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                         darkMode
@@ -286,11 +251,7 @@ export default function Navbar({
         </div>
       </nav>
 
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        darkMode={darkMode}
-      />
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} darkMode={darkMode} />
     </>
-  );
+  )
 }

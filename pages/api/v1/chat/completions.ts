@@ -3,7 +3,7 @@ import { Readable } from "stream";
 
 // Simplified configuration: all we need is the LiteLLM endpoint.
 const LITELLM_ENDPOINT =
-  process.env.LITELLM_BASE_URL || "https://ternary-gateway.up.railway.app";
+  process.env.LITELLM_BASE_URL || "https://ternary-gatewayy.up.railway.app";
 
 // Define available models for routing logic using the correct public model names.
 const AVAILABLE_MODELS = [

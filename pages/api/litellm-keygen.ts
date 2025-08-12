@@ -46,7 +46,7 @@ export default async function handler(
 
   try {
     const response = await fetch(
-      "https://ternary-gateway.up.railway.app/key/generate",
+      "https://ternary-gatewayy.up.railway.app/key/generate",
       {
         method: "POST",
         headers: {

@@ -34,7 +34,7 @@ export default async function handler(
     const proxyRes = await fetch(
       process.env.LITELLM_BASE_URL
         ? `${process.env.LITELLM_BASE_URL}/user/info`
-        : "https://ternary-gateway.up.railway.app/user/info",
+        : "https://ternary-gatewayy.up.railway.app/user/info",
       {
         method: "GET",
         headers: {

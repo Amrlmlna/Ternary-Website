@@ -84,7 +84,7 @@ export default async function handler(
       throw new Error("No API key provided");
     }
     const proxyRes = await fetch(
-      "https://ternary-gateway.up.railway.app/v1/models",
+      "https://ternary-gatewayy.up.railway.app/v1/models",
       {
         method: "GET",
         headers: {

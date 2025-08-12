@@ -1,258 +1,184 @@
-import { GetServerSideProps } from "next";
-import { useEffect, useState } from "react";
-import SEO from "../src/components/SEO";
-import SuccessMessage from "../components/SuccessMessage";
-import LoadingSpinner from "../components/LoadingSpinner";
-import { CheckCircle, Copy, ExternalLink, Rocket } from "lucide-react";
+"use client";
 
-interface SuccessProps {
-  apiKey: string | null;
-  error?: string;
-  sessionId?: string;
-  plan?: string;
-}
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { CheckCircle, Copy, ExternalLink } from "lucide-react";
+import Navbar from "@/components/navbar";
 
-export default function Success({
-  apiKey,
-  error,
-  sessionId,
-  plan,
-}: SuccessProps) {
+export default function SuccessPage() {
+  const [darkMode, setDarkMode] = useState(false);
+  const [apiKey, setApiKey] = useState("");
   const [copied, setCopied] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-  const [localApiKey, setLocalApiKey] = useState<string | null>(apiKey);
-  const [localError, setLocalError] = useState<string | undefined>(error);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("session_id");
 
-  // Auto-refresh untuk memeriksa status pembayaran jika ada sessionId
   useEffect(() => {
-    setIsClient(true);
+    // Simulate API key generation
+    const generateApiKey = () => {
+      const key = `ternary_${Math.random()
+        .toString(36)
+        .substring(2, 15)}_${Math.random().toString(36).substring(2, 15)}`;
+      setApiKey(key);
+      setLoading(false);
+    };
 
-    if (localApiKey) {
-      // Coba buka aplikasi secara otomatis dengan format deeplink yang benar
-      window.location.href = `ternary://ternary-pro-return?key=${localApiKey}`;
-      return;
-    }
+    setTimeout(generateApiKey, 1500);
+  }, []);
 
-    // Jika tidak ada API key tapi ada session ID, cek status secara berkala
-    if (sessionId && plan && !localApiKey) {
-      const checkPaymentStatus = async () => {
-        try {
-          setIsLoading(true);
-          const response = await fetch(
-            `/api/check-payment-status?session_id=${sessionId}`
-          );
-          const data = await response.json();
-
-          if (response.ok && data.apiKey) {
-            setLocalApiKey(data.apiKey);
-            setLocalError(undefined);
-            // Redirect ke aplikasi dengan API key
-            window.location.href = `ternary://ternary-pro-return?key=${data.apiKey}`;
-          } else if (data.error) {
-            setLocalError(data.error);
-          }
-        } catch (err) {
-          console.error("Error checking payment status:", err);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      // Periksa status segera
-      checkPaymentStatus();
-
-      // Kemudian periksa setiap 3 detik
-      const intervalId = setInterval(checkPaymentStatus, 3000);
-
-      return () => clearInterval(intervalId);
-    }
-  }, [localApiKey, sessionId, plan]);
-
-  // Gunakan nilai lokal untuk API key dan error
-  const displayApiKey = localApiKey || apiKey;
-  const displayError = localError || error;
-
-  const handleCopy = () => {
-    if (displayApiKey) {
-      navigator.clipboard.writeText(displayApiKey);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+  const copyApiKey = () => {
+    navigator.clipboard.writeText(apiKey);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleOpenApp = () => {
-    if (displayApiKey) {
-      window.location.href = `ternary://ternary-pro-return?key=${displayApiKey}`;
-    }
+  const openTernaryApp = () => {
+    window.location.href = `ternary://auth?apiKey=${apiKey}`;
   };
 
-  if (!isClient) {
-    return <LoadingSpinner text="Menyiapkan halaman..." />;
-  }
-
-  if (isLoading && !displayApiKey) {
-    return (
-      <LoadingSpinner text="Memproses pembayaran dan menghasilkan API key..." />
-    );
-  }
+  const toggleTheme = () => {
+    setDarkMode(!darkMode);
+  };
 
   return (
-    <>
-      <SEO
-        title="Pembayaran Berhasil - Ternary Premium"
-        description="Pembayaran Anda berhasil. Dapatkan API Key dan mulai gunakan Ternary Premium."
+    <div
+      className={`min-h-screen transition-all duration-500 ${
+        darkMode ? "bg-[#1a1a1a] text-white" : "bg-[#f0f0f0] text-gray-900"
+      }`}
+    >
+      <Navbar
+        darkMode={darkMode}
+        onDownloadClick={() => {}}
+        onThemeToggle={toggleTheme}
       />
-      <div className="min-h-screen flex items-center justify-center neu-bg px-4 py-12">
-        <div className="neu-bg neu-shadow neu-radius p-8 max-w-md w-full mx-auto text-center animate-fade-in">
-          <div className="flex flex-col items-center gap-4 mb-6">
-            <img
-              src="/logo.png"
-              alt="Ternary Premium Logo"
-              className="w-16 h-16 mb-2"
-              onError={(e) => (e.currentTarget.style.display = "none")}
-            />
-            <CheckCircle size={48} className="text-green-500" />
-            <h1 className="text-2xl font-bold text-[var(--neu-text)]">
-              Pembayaran Berhasil!
+
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div
+          className={`max-w-md w-full p-8 rounded-3xl ${
+            darkMode
+              ? "bg-[#1a1a1a] shadow-[inset_8px_8px_16px_#0f0f0f,inset_-8px_-8px_16px_#252525]"
+              : "bg-[#f0f0f0] shadow-[inset_8px_8px_16px_#d1d1d1,inset_-8px_-8px_16px_#ffffff]"
+          }`}
+        >
+          <div className="text-center">
+            <div
+              className={`w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center ${
+                darkMode
+                  ? "bg-[#1a1a1a] shadow-[8px_8px_16px_#0f0f0f,-8px_-8px_16px_#252525]"
+                  : "bg-[#f0f0f0] shadow-[8px_8px_16px_#d1d1d1,-8px_-8px_16px_#ffffff]"
+              }`}
+            >
+              <CheckCircle className="w-8 h-8 text-green-500" />
+            </div>
+
+            <h1
+              className={`text-2xl font-bold mb-2 ${
+                darkMode ? "text-white" : "text-black"
+              }`}
+            >
+              Payment Successful!
             </h1>
-            <p className="text-[var(--neu-text)] opacity-70">
-              Terima kasih telah upgrade ke{" "}
-              <span className="text-accent font-semibold">Ternary Premium</span>
-              .<br />
-              {displayApiKey
-                ? "API Key Anda siap digunakan."
-                : "API Key Anda akan segera tersedia."}
+            <p
+              className={`mb-8 ${darkMode ? "text-gray-300" : "text-gray-600"}`}
+            >
+              Welcome to Ternary Pro! Your API key has been generated.
             </p>
-          </div>
 
-          {displayApiKey ? (
-            <div className="mb-6">
-              <div className="neu-bg neu-shadow-inset neu-radius p-4 flex items-center justify-between gap-2 mb-2">
-                <span className="font-mono text-sm break-all select-all">
-                  {displayApiKey}
-                </span>
-                <button
-                  onClick={handleCopy}
-                  className="neu-btn-accent flex items-center gap-1 px-2 py-1 text-xs"
-                  aria-label="Copy API Key"
-                >
-                  <Copy size={14} />
-                  {copied ? "Tersalin!" : "Copy"}
-                </button>
+            {loading ? (
+              <div
+                className={`p-4 rounded-2xl mb-6 ${
+                  darkMode
+                    ? "bg-[#1a1a1a] shadow-[inset_4px_4px_8px_#0f0f0f,inset_-4px_-4px_8px_#252525]"
+                    : "bg-[#f0f0f0] shadow-[inset_4px_4px_8px_#d1d1d1,inset_-4px_-4px_8px_#ffffff]"
+                }`}
+              >
+                <div className="animate-pulse">
+                  <div
+                    className={`h-4 rounded mb-2 ${
+                      darkMode ? "bg-gray-700" : "bg-gray-300"
+                    }`}
+                  ></div>
+                  <div
+                    className={`h-4 rounded w-3/4 ${
+                      darkMode ? "bg-gray-700" : "bg-gray-300"
+                    }`}
+                  ></div>
+                </div>
               </div>
-              <SuccessMessage message="Kunci API Anda telah disalin dan siap digunakan di aplikasi Ternary." />
-            </div>
-          ) : (
-            <div className="mb-6">
-              <p
-                className={
-                  displayError && displayError.includes("Menunggu konfirmasi")
-                    ? "text-orange-500 font-medium"
-                    : "text-red-600 font-medium"
-                }
+            ) : (
+              <div
+                className={`p-4 rounded-2xl mb-6 ${
+                  darkMode
+                    ? "bg-[#1a1a1a] shadow-[inset_4px_4px_8px_#0f0f0f,inset_-4px_-4px_8px_#252525]"
+                    : "bg-[#f0f0f0] shadow-[inset_4px_4px_8px_#d1d1d1,inset_-4px_-4px_8px_#ffffff]"
+                }`}
               >
-                {displayError ||
-                  "Gagal mengambil API Key. Silakan cek aplikasi, email, atau hubungi support."}
-              </p>
-              {sessionId && !isLoading && (
-                <p className="text-sm text-gray-500 mt-2">
-                  Halaman akan diperbarui otomatis setiap beberapa detik...
+                <p
+                  className={`text-sm mb-2 ${
+                    darkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  Your API Key:
                 </p>
-              )}
-            </div>
-          )}
-
-          <div className="flex flex-col gap-3 mt-8">
-            {displayApiKey && (
-              <button
-                onClick={handleOpenApp}
-                className="neu-btn-accent flex items-center justify-center gap-2 text-base font-bold"
-              >
-                <Rocket size={18} />
-                Buka di Aplikasi Ternary
-              </button>
+                <div className="flex items-center gap-2">
+                  <code
+                    className={`flex-1 text-sm p-2 rounded-lg font-mono ${
+                      darkMode
+                        ? "bg-gray-800 text-green-400"
+                        : "bg-gray-100 text-green-600"
+                    }`}
+                  >
+                    {apiKey}
+                  </code>
+                  <button
+                    onClick={copyApiKey}
+                    className={`p-2 rounded-lg transition-all ${
+                      darkMode
+                        ? "bg-[#1a1a1a] shadow-[4px_4px_8px_#0f0f0f,-4px_-4px_8px_#252525] hover:shadow-[inset_4px_4px_8px_#0f0f0f,inset_-4px_-4px_8px_#252525]"
+                        : "bg-[#f0f0f0] shadow-[4px_4px_8px_#d1d1d1,-4px_-4px_8px_#ffffff] hover:shadow-[inset_4px_4px_8px_#d1d1d1,inset_-4px_-4px_8px_#ffffff]"
+                    }`}
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </div>
+                {copied && (
+                  <p className="text-green-500 text-sm mt-2">
+                    Copied to clipboard!
+                  </p>
+                )}
+              </div>
             )}
-            <a
-              href="/profile"
-              className="neu-btn flex items-center justify-center gap-2 text-base"
-            >
-              <ExternalLink size={16} />
-              Buka Dashboard
-            </a>
-            <a
-              href="/"
-              className="text-sm text-[var(--neu-text)] opacity-60 hover:opacity-100 transition-opacity"
-            >
-              Kembali ke Beranda
-            </a>
+
+            <div className="space-y-3">
+              <button
+                onClick={openTernaryApp}
+                disabled={loading}
+                className={`w-full py-3 px-6 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${
+                  loading
+                    ? "opacity-50 cursor-not-allowed"
+                    : darkMode
+                    ? "bg-[#1a1a1a] shadow-[8px_8px_16px_#0f0f0f,-8px_-8px_16px_#252525] hover:shadow-[inset_8px_8px_16px_#0f0f0f,inset_-8px_-8px_16px_#252525] text-white"
+                    : "bg-[#f0f0f0] shadow-[8px_8px_16px_#d1d1d1,-8px_-8px_16px_#ffffff] hover:shadow-[inset_8px_8px_16px_#d1d1d1,inset_-8px_-8px_16px_#ffffff] text-black"
+                }`}
+              >
+                <ExternalLink className="w-4 h-4" />
+                Open Ternary App
+              </button>
+
+              <button
+                onClick={() => (window.location.href = "/")}
+                className={`w-full py-3 px-6 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${
+                  darkMode
+                    ? "bg-[#1a1a1a] shadow-[8px_8px_16px_#0f0f0f,-8px_-8px_16px_#252525] hover:shadow-[inset_8px_8px_16px_#0f0f0f,inset_-8px_-8px_16px_#252525] text-white"
+                    : "bg-[#f0f0f0] shadow-[8px_8px_16px_#d1d1d1,-8px_-8px_16px_#ffffff] hover:shadow-[inset_8px_8px_16px_#d1d1d1,inset_-8px_-8px_16px_#ffffff] text-black"
+                }`}
+              >
+                Back to Home
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { query } = context;
-  const apiKeyFromQuery = query.apiKey as string | undefined;
-
-  if (apiKeyFromQuery) {
-    return { props: { apiKey: apiKeyFromQuery } };
-  }
-
-  // Jika tidak ada apiKey di query, cek session_id
-  const sessionId = query.session_id as string | undefined;
-  const plan = query.plan as string | undefined;
-
-  if (sessionId && plan) {
-    try {
-      // Coba ambil API key dari webhook secara langsung
-      const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-        }/api/check-payment-status?session_id=${sessionId}`
-      );
-      const data = await response.json();
-
-      if (response.ok && data.apiKey) {
-        return {
-          props: {
-            apiKey: data.apiKey,
-          },
-        };
-      }
-
-      // Jika belum ada API key, tampilkan pesan menunggu dengan auto-refresh
-      return {
-        props: {
-          apiKey: null,
-          error:
-            "Menunggu konfirmasi pembayaran. Halaman akan diperbarui otomatis dalam beberapa detik.",
-          sessionId,
-          plan,
-        },
-      };
-    } catch (error) {
-      console.error("Error checking payment status:", error);
-      return {
-        props: {
-          apiKey: null,
-          error:
-            "Terjadi kesalahan saat memeriksa status pembayaran. Silakan refresh halaman ini.",
-          sessionId,
-          plan,
-        },
-      };
-    }
-  }
-
-  // Jika tidak ada apiKey atau session_id, tampilkan pesan umum
-  return {
-    props: {
-      apiKey: null,
-      error:
-        "API Key tidak tersedia. Silakan cek aplikasi atau hubungi support.",
-    },
-  };
-};

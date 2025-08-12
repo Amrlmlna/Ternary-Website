@@ -1,52 +1,39 @@
-import type { NextPage } from "next";
-import PricingSection from "../components/PricingSection";
-import FeaturesSection from "../components/FeaturesSection";
-import HowItWorksSection from "../components/HowItWorksSection";
-import TestimonialsSection from "../components/TestimonialsSection";
-import FAQSection from "../components/FAQSection";
-import Navbar from "../components/Navbar";
-import HomeSection from "../components/HomeSection";
-import ShowcaseSection from "../components/ShowcaseSection";
-import SEO from "../src/components/SEO";
-import SkipLink from "../components/SkipLink";
+"use client";
 
-const Home: NextPage = () => {
+import { useState } from "react";
+import Navbar from "@/components/navbar";
+import HeroSection from "@/components/hero-section";
+import PricingSection from "@/components/pricing-section";
+
+export default function TernaryLanding() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  const scrollToDownload = () => {
+    const heroSection = document.querySelector("#hero-section");
+    heroSection?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const toggleTheme = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
-    <>
-      <SEO />
-      <SkipLink />
-      <main
-        id="main-content"
-        className="min-h-screen flex flex-col items-center justify-center neu-bg"
-        style={{ fontFamily: "Poppins, sans-serif" }}
-      >
-        <Navbar />
-        <HomeSection />
-        <section id="features">
-          <FeaturesSection />
-        </section>
-        <section id="how-it-works">
-          <HowItWorksSection />
-        </section>
-        <section id="testimonials">
-          <TestimonialsSection />
-        </section>
-        <section id="faq">
-          <FAQSection />
-        </section>
-        <section id="pricing">
-          <PricingSection />
-        </section>
-        <footer
-          className="mt-10 text-sm opacity-60"
-          style={{ color: "var(--neu-text)" }}
-        >
-          &copy; {new Date().getFullYear()} Ternary Premium. All rights
-          reserved.
-        </footer>
-      </main>
-    </>
-  );
-};
+    <div
+      className={`min-h-screen transition-all duration-500 ${
+        darkMode ? "bg-[#1a1a1a] text-white" : "bg-[#f0f0f0] text-gray-900"
+      }`}
+    >
+      <Navbar
+        darkMode={darkMode}
+        onDownloadClick={scrollToDownload}
+        onThemeToggle={toggleTheme}
+      />
 
-export default Home;
+      <div id="hero-section">
+        <HeroSection darkMode={darkMode} />
+      </div>
+
+      <PricingSection darkMode={darkMode} />
+    </div>
+  );
+}
