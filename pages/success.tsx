@@ -1,30 +1,65 @@
-"use client";
-
+import { GetServerSideProps } from "next";
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import { CheckCircle, Copy, ExternalLink } from "lucide-react";
 import Navbar from "@/components/Navbar";
+interface SuccessProps {
+  apiKey: string | null;
+  error?: string;
+  sessionId?: string;
+  plan?: string;
+}
 
-export default function SuccessPage() {
+export default function SuccessPage({
+  apiKey: apiKeyProp,
+  error: errorProp,
+  sessionId,
+  plan,
+}: SuccessProps) {
   const [darkMode, setDarkMode] = useState(false);
-  const [apiKey, setApiKey] = useState("");
+  const [apiKey, setApiKey] = useState<string>(apiKeyProp || "");
   const [copied, setCopied] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id");
-  const apiKeyParam = searchParams.get("apiKey");
+  const [loading, setLoading] = useState<boolean>(!apiKeyProp);
+  const [localError, setLocalError] = useState<string | undefined>(errorProp);
 
+  // Auto-redirect if apiKey is present; else poll by sessionId
   useEffect(() => {
-    if (apiKeyParam) {
-      setApiKey(apiKeyParam);
+    if (apiKey) {
+      // Deep link to desktop app
+      window.location.href = `ternary://ternary-pro-return?key=${apiKey}`;
       setLoading(false);
       return;
     }
 
-    // If no apiKey param, we can optionally try to look up by sessionId in future.
-    // For now, do not fabricate an API key.
+    if (!apiKey && sessionId && plan) {
+      const checkPaymentStatus = async () => {
+        try {
+          setLoading(true);
+          const response = await fetch(`/api/check-payment-status?session_id=${sessionId}`);
+          const data = await response.json();
+          if (response.ok && data.apiKey) {
+            setApiKey(data.apiKey);
+            setLocalError(undefined);
+            // Redirect after acquiring key
+            window.location.href = `ternary://ternary-pro-return?key=${data.apiKey}`;
+          } else if (data.error) {
+            setLocalError(data.error);
+          }
+        } catch (err) {
+          console.error("Error checking payment status:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      // immediate then interval
+      checkPaymentStatus();
+      const id = setInterval(checkPaymentStatus, 3000);
+      return () => clearInterval(id);
+    }
+
+    // if nothing to do
     setLoading(false);
-  }, [apiKeyParam, sessionId]);
+  }, [apiKey, sessionId, plan]);
 
   const copyApiKey = () => {
     navigator.clipboard.writeText(apiKey);
@@ -33,7 +68,7 @@ export default function SuccessPage() {
   };
 
   const openTernaryApp = () => {
-    window.location.href = `ternary://auth?apiKey=${apiKey}`;
+    window.location.href = `ternary://ternary-pro-return?key=${apiKey}`;
   };
 
   const toggleTheme = () => {
@@ -78,12 +113,10 @@ export default function SuccessPage() {
             >
               Payment Successful!
             </h1>
-            <p
-              className={`mb-8 ${darkMode ? "text-gray-300" : "text-gray-600"}`}
-            >
+            <p className={`mb-8 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
               {apiKey
                 ? "Welcome to Ternary Pro! Your API key is ready."
-                : "We couldn't find your API key on this page. Please return to the app or contact support if this persists."}
+                : localError || "We couldn't find your API key on this page. Please return to the app or contact support if this persists."}
             </p>
 
             {loading ? (
@@ -157,14 +190,14 @@ export default function SuccessPage() {
                     : "bg-[#f0f0f0] shadow-[inset_4px_4px_8px_#d1d1d1,inset_-4px_-4px_8px_#ffffff]"
                 }`}
               >
-                <p
-                  className={`text-sm ${
-                    darkMode ? "text-red-400" : "text-red-600"
-                  }`}
-                >
-                  Missing API key. Please ensure you reached this page via the
-                  payment flow.
+                <p className={`text-sm ${darkMode ? "text-red-400" : "text-red-600"}`}>
+                  {localError || "Missing API key. Please ensure you reached this page via the payment flow."}
                 </p>
+                {sessionId && !loading && (
+                  <p className="text-sm mt-2 text-gray-500">
+                    The page will auto-refresh while we confirm your payment...
+                  </p>
+                )}
               </div>
             )}
 
@@ -201,3 +234,56 @@ export default function SuccessPage() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { query } = context;
+  const apiKeyFromQuery = query.apiKey as string | undefined;
+
+  if (apiKeyFromQuery) {
+    return { props: { apiKey: apiKeyFromQuery } };
+  }
+
+  const sessionId = query.session_id as string | undefined;
+  const plan = query.plan as string | undefined;
+
+  if (sessionId && plan) {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/check-payment-status?session_id=${sessionId}`
+      );
+      const data = await response.json();
+
+      if (response.ok && data.apiKey) {
+        return { props: { apiKey: data.apiKey } };
+      }
+
+      return {
+        props: {
+          apiKey: null,
+          error:
+            "Waiting for payment confirmation. This page will refresh automatically in a few seconds.",
+          sessionId,
+          plan,
+        },
+      };
+    } catch (error) {
+      console.error("Error checking payment status:", error);
+      return {
+        props: {
+          apiKey: null,
+          error:
+            "An error occurred while checking payment status. Please refresh this page.",
+          sessionId,
+          plan,
+        },
+      };
+    }
+  }
+
+  return {
+    props: {
+      apiKey: null,
+      error: "API Key not available. Please check the app or contact support.",
+    },
+  };
+};
