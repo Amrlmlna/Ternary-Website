@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { ChevronDown, ChevronRight } from "lucide-react"
 import { docSections } from "./sections"
+import { getNavigationStructure } from "./nav"
 
 interface SidebarProps {
   darkMode: boolean
@@ -17,67 +18,7 @@ export default function DocsSidebar({ darkMode, activeSection, onSectionChange }
     setExpandedGroups((prev) => (prev.includes(groupId) ? prev.filter((id) => id !== groupId) : [...prev, groupId]))
   }
 
-  const navigationStructure = [
-    {
-      id: "getting-started",
-      title: "Getting Started",
-      items: [
-        { id: "overview", title: "Overview" },
-        { id: "quickstart", title: "Quickstart" },
-      ],
-    },
-    {
-      id: "guides",
-      title: "Guides",
-      items: [
-        { id: "ai-models", title: "AI Models" },
-        { id: "local-models", title: "Local Models" },
-        { id: "chatting", title: "Chatting" },
-        { id: "debugging", title: "Debugging" },
-        { id: "previewing", title: "Previewing" },
-        { id: "versioning", title: "Versioning" },
-        { id: "importing", title: "Importing" },
-        { id: "mobile-app", title: "Mobile App" },
-      ],
-    },
-    {
-      id: "pro",
-      title: "Pro",
-      items: [
-        { id: "pro-overview", title: "Pro Overview" },
-        { id: "pro-modes", title: "Pro Modes" },
-        { id: "maximize-credits", title: "Maximize AI Credits" },
-      ],
-    },
-    {
-      id: "integrations",
-      title: "Integrations",
-      items: [
-        { id: "github", title: "GitHub" },
-        { id: "supabase", title: "Supabase" },
-      ],
-    },
-    {
-      id: "reference",
-      title: "Reference",
-      items: [
-        { id: "api", title: "API Reference" },
-        { id: "faq", title: "FAQ" },
-        { id: "roadmap", title: "Roadmap" },
-      ],
-    },
-    {
-      id: "policies",
-      title: "Policies",
-      items: [
-        { id: "privacy-policy", title: "Privacy Policy" },
-        { id: "terms", title: "Terms of Service" },
-        { id: "cancellation", title: "Cancellation" },
-        { id: "refund", title: "Refund" },
-        { id: "abuse", title: "Abuse" },
-      ],
-    },
-  ]
+  const navigationStructure = getNavigationStructure()
 
   return (
     <div className="fixed left-4 top-20 bottom-4 w-80 overflow-y-auto">
