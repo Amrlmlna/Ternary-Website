@@ -94,7 +94,7 @@ export default function UserProfile() {
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as any)}
                       className={cn(
-                        "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all",
+                        "w-full flex items-center gap-3 px-4 py-3 neu-radius text-left transition-all",
                         activeTab === tab.id
                           ? "bg-accent text-white neu-shadow"
                           : "text-[var(--neu-text)] hover:bg-[var(--neu-border)]"
@@ -110,7 +110,7 @@ export default function UserProfile() {
               <div className="mt-6 pt-6 border-t border-[var(--neu-border)]">
                 <button
                   onClick={handleSignOut}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-[var(--neu-text)] hover:bg-red-100 hover:text-red-700 transition-all"
+                  className="w-full flex items-center gap-3 px-4 py-3 neu-radius text-left text-[var(--neu-text)] neu-bg neu-shadow neu-transition"
                 >
                   <LogOut size={16} />
                   <span className="text-sm font-medium">Keluar</span>

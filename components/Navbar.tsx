@@ -49,20 +49,16 @@ export default function Navbar({
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-40 backdrop-blur-md transition-all duration-300 ${
-          darkMode ? "bg-[#1a1a1a]/80" : "bg-[#f0f0f0]/80"
-        }`}
+        className={
+          "fixed top-0 left-0 right-0 z-40 backdrop-blur-md neu-bg neu-transition"
+        }
       >
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Logo */}
             <div className="flex items-center gap-2 sm:gap-3">
               <div
-                className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl ${
-                  darkMode
-                    ? "bg-[#212121] shadow-[2px_2px_4px_#000,-2px_-2px_4px_#2f2f2f] sm:shadow-[3px_3px_6px_#000,-3px_-3px_6px_#2f2f2f]"
-                    : "bg-[#e8e8e8] shadow-[2px_2px_4px_#c5c5c5,-2px_-2px_4px_#ffffff] sm:shadow-[3px_3px_6px_#c5c5c5,-3px_-3px_6px_#ffffff]"
-                }`}
+                className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 neu-radius neu-bg neu-shadow"
               >
                 <Image
                   src="/logo_transparent.png"
@@ -80,7 +76,7 @@ export default function Navbar({
                 <a
                   key={item.name}
                   href={item.href}
-                  className="text-sm font-medium opacity-70 hover:opacity-100 transition-opacity duration-200"
+                  className="text-sm font-medium opacity-80 hover:opacity-100 transition-opacity duration-200 text-[var(--neu-text)]"
                 >
                   {item.name}
                 </a>
@@ -91,11 +87,7 @@ export default function Navbar({
             <div className="hidden md:flex items-center gap-2 sm:gap-4">
               <button
                 onClick={onThemeToggle}
-                className={`p-1.5 sm:p-2 rounded-lg transition-all duration-300 ${
-                  darkMode
-                    ? "bg-[#212121] shadow-[2px_2px_4px_#000,-2px_-2px_4px_#2f2f2f] sm:shadow-[3px_3px_6px_#000,-3px_-3px_6px_#2f2f2f] hover:shadow-[inset_2px_2px_4px_#000,inset_-2px_-2px_4px_#1f1f1f]"
-                    : "bg-[#e8e8e8] shadow-[2px_2px_4px_#c5c5c5,-2px_-2px_4px_#ffffff] sm:shadow-[3px_3px_6px_#c5c5c5,-3px_-3px_6px_#ffffff] hover:shadow-[inset_2px_2px_4px_#c5c5c5,inset_-2px_-2px_4px_#ffffff]"
-                }`}
+                className="p-1.5 sm:p-2 neu-radius neu-bg neu-shadow neu-transition"
               >
                 {darkMode ? (
                   <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -107,11 +99,7 @@ export default function Navbar({
                 href="https://github.com/TernaryStudio/Ternary-App"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`p-1.5 sm:p-2 rounded-lg transition-all duration-300 ${
-                  darkMode
-                    ? "bg-[#212121] shadow-[2px_2px_4px_#000,-2px_-2px_4px_#2f2f2f] sm:shadow-[3px_3px_6px_#000,-3px_-3px_6px_#2f2f2f] hover:shadow-[inset_2px_2px_4px_#000,inset_-2px_-2px_4px_#1f1f1f]"
-                    : "bg-[#e8e8e8] shadow-[2px_2px_4px_#c5c5c5,-2px_-2px_4px_#ffffff] sm:shadow-[3px_3px_6px_#c5c5c5,-3px_-3px_6px_#ffffff] hover:shadow-[inset_2px_2px_4px_#c5c5c5,inset_-2px_-2px_4px_#ffffff]"
-                }`}
+                className="p-1.5 sm:p-2 neu-radius neu-bg neu-shadow neu-transition"
               >
                 <Github className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </a>
@@ -119,11 +107,7 @@ export default function Navbar({
               {loading ? null : isAuthenticated ? (
                 <div className="relative group">
                   <button
-                    className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
-                      darkMode
-                        ? "bg-[#212121] shadow-[2px_2px_4px_#000,-2px_-2px_4px_#2f2f2f] sm:shadow-[3px_3px_6px_#000,-3px_-3px_6px_#2f2f2f] hover:shadow-[inset_2px_2px_4px_#000,inset_-2px_-2px_4px_#1f1f1f]"
-                        : "bg-[#e8e8e8] shadow-[2px_2px_4px_#c5c5c5,-2px_-2px_4px_#ffffff] sm:shadow-[3px_3px_6px_#c5c5c5,-3px_-3px_6px_#ffffff] hover:shadow-[inset_2px_2px_4px_#c5c5c5,inset_-2px_-2px_4px_#ffffff]"
-                    }`}
+                    className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 neu-radius text-xs sm:text-sm font-medium neu-bg neu-shadow neu-transition"
                   >
                     <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     <span className="hidden sm:inline">
@@ -136,11 +120,7 @@ export default function Navbar({
                     </span>
                   </button>
                   <div
-                    className={`absolute right-0 top-full mt-2 w-40 sm:w-48 py-2 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ${
-                      darkMode
-                        ? "bg-[#212121] shadow-[8px_8px_16px_#000,-8px_-8px_16px_#2f2f2f]"
-                        : "bg-[#e8e8e8] shadow-[8px_8px_16px_#c5c5c5,-8px_-8px_16px_#ffffff]"
-                    }`}
+                    className="absolute right-0 top-full mt-2 w-40 sm:w-48 py-2 neu-radius opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 neu-bg neu-shadow"
                   >
                     <a
                       href="/profile"
@@ -159,11 +139,7 @@ export default function Navbar({
               ) : (
                 <button
                   onClick={handleLogin}
-                  className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
-                    darkMode
-                      ? "bg-[#212121] shadow-[2px_2px_4px_#000,-2px_-2px_4px_#2f2f2f] sm:shadow-[3px_3px_6px_#000,-3px_-3px_6px_#2f2f2f] hover:shadow-[inset_2px_2px_4px_#000,inset_-2px_-2px_4px_#1f1f1f]"
-                      : "bg-[#e8e8e8] shadow-[2px_2px_4px_#c5c5c5,-2px_-2px_4px_#ffffff] sm:shadow-[3px_3px_6px_#c5c5c5,-3px_-3px_6px_#ffffff] hover:shadow-[inset_2px_2px_4px_#c5c5c5,inset_-2px_-2px_4px_#ffffff]"
-                  }`}
+                  className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 neu-radius text-xs sm:text-sm font-medium neu-bg neu-shadow neu-transition"
                 >
                   <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span className="hidden sm:inline">Login</span>
@@ -174,11 +150,7 @@ export default function Navbar({
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`md:hidden p-1.5 sm:p-2 rounded-lg transition-all duration-300 ${
-                darkMode
-                  ? "bg-[#212121] shadow-[2px_2px_4px_#000,-2px_-2px_4px_#2f2f2f] hover:shadow-[inset_2px_2px_4px_#000,inset_-2px_-2px_4px_#1f1f1f]"
-                  : "bg-[#e8e8e8] shadow-[2px_2px_4px_#c5c5c5,-2px_-2px_4px_#ffffff] hover:shadow-[inset_2px_2px_4px_#c5c5c5,inset_-2px_-2px_4px_#ffffff]"
-              }`}
+              className="md:hidden p-1.5 sm:p-2 neu-radius neu-bg neu-shadow neu-transition"
             >
               {isMenuOpen ? (
                 <X className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -195,9 +167,7 @@ export default function Navbar({
             }`}
           >
             <div
-              className={`py-4 border-t ${
-                darkMode ? "border-gray-700" : "border-gray-300"
-              }`}
+              className={"py-4 border-t border-[var(--neu-border)]"}
             >
               <div className="flex flex-col gap-3">
                 {/* Navigation Links */}
@@ -215,18 +185,14 @@ export default function Navbar({
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center justify-between pt-3 border-t border-opacity-20 border-gray-500">
+                <div className="flex items-center justify-between pt-3 border-t border-[var(--neu-border)]">
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => {
                         onThemeToggle();
                         setIsMenuOpen(false);
                       }}
-                      className={`p-2 rounded-lg transition-all duration-300 ${
-                        darkMode
-                          ? "bg-[#212121] shadow-[2px_2px_4px_#000,-2px_-2px_4px_#2f2f2f] hover:shadow-[inset_2px_2px_4px_#000,inset_-2px_-2px_4px_#1f1f1f]"
-                          : "bg-[#e8e8e8] shadow-[2px_2px_4px_#c5c5c5,-2px_-2px_4px_#ffffff] hover:shadow-[inset_2px_2px_4px_#c5c5c5,inset_-2px_-2px_4px_#ffffff]"
-                      }`}
+                      className="p-2 neu-radius neu-bg neu-shadow neu-transition"
                     >
                       {darkMode ? (
                         <Sun className="w-4 h-4" />
@@ -238,11 +204,7 @@ export default function Navbar({
                       href="https://github.com/TernaryStudio/Ternary-App"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`p-2 rounded-lg transition-all duration-300 ${
-                        darkMode
-                          ? "bg-[#212121] shadow-[2px_2px_4px_#000,-2px_-2px_4px_#2f2f2f] hover:shadow-[inset_2px_2px_4px_#000,inset_-2px_-2px_4px_#1f1f1f]"
-                          : "bg-[#e8e8e8] shadow-[2px_2px_4px_#c5c5c5,-2px_-2px_4px_#ffffff] hover:shadow-[inset_2px_2px_4px_#c5c5c5,inset_-2px_-2px_4px_#ffffff]"
-                      }`}
+                      className="p-2 neu-radius neu-bg neu-shadow neu-transition"
                     >
                       <Github className="w-4 h-4" />
                     </a>
@@ -254,11 +216,7 @@ export default function Navbar({
                         handleLogout();
                         setIsMenuOpen(false);
                       }}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                        darkMode
-                          ? "bg-[#212121] shadow-[2px_2px_4px_#000,-2px_-2px_4px_#2f2f2f] hover:shadow-[inset_2px_2px_4px_#000,inset_-2px_-2px_4px_#1f1f1f]"
-                          : "bg-[#e8e8e8] shadow-[2px_2px_4px_#c5c5c5,-2px_-2px_4px_#ffffff] hover:shadow-[inset_2px_2px_4px_#c5c5c5,inset_-2px_-2px_4px_#ffffff]"
-                      }`}
+                      className="flex items-center gap-2 px-4 py-2 neu-radius text-sm font-medium neu-bg neu-shadow neu-transition"
                     >
                       <User className="w-4 h-4" />
                       Logout
@@ -269,11 +227,7 @@ export default function Navbar({
                         handleLogin();
                         setIsMenuOpen(false);
                       }}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                        darkMode
-                          ? "bg-[#212121] shadow-[2px_2px_4px_#000,-2px_-2px_4px_#2f2f2f] hover:shadow-[inset_2px_2px_4px_#000,inset_-2px_-2px_4px_#1f1f1f]"
-                          : "bg-[#e8e8e8] shadow-[2px_2px_4px_#c5c5c5,-2px_-2px_4px_#ffffff] hover:shadow-[inset_2px_2px_4px_#c5c5c5,inset_-2px_-2px_4px_#ffffff]"
-                      }`}
+                      className="flex items-center gap-2 px-4 py-2 neu-radius text-sm font-medium neu-bg neu-shadow neu-transition"
                     >
                       <LogIn className="w-4 h-4" />
                       Login

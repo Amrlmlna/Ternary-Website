@@ -18,22 +18,21 @@ export default function TernaryLanding() {
   };
 
   return (
-    <div
-      className={`min-h-screen transition-all duration-500 ${
-        darkMode ? "bg-[#1a1a1a] text-white" : "bg-[#f0f0f0] text-gray-900"
-      }`}
-    >
-      <Navbar
-        darkMode={darkMode}
-        onDownloadClick={scrollToDownload}
-        onThemeToggle={toggleTheme}
-      />
+    // Toggle the dark variables/utilities for all descendants
+    <div className={darkMode ? "dark" : ""}>
+      <div className="min-h-screen neu-bg neu-transition">
+        <Navbar
+          darkMode={darkMode}
+          onDownloadClick={scrollToDownload}
+          onThemeToggle={toggleTheme}
+        />
 
-      <div id="hero-section">
-        <HeroSection darkMode={darkMode} />
+        <div id="hero-section">
+          <HeroSection darkMode={darkMode} />
+        </div>
+
+        <PricingSection darkMode={darkMode} />
       </div>
-
-      <PricingSection darkMode={darkMode} />
     </div>
   );
 }

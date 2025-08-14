@@ -79,10 +79,10 @@ export default function PricingSection({ darkMode }: PricingSectionProps) {
   return (
     <div className="container mx-auto px-6 py-20">
       <div className="text-center mb-16">
-        <h2 className={`text-4xl font-bold mb-4 ${darkMode ? "text-white" : "text-black"}`}>
+        <h2 className="text-4xl font-bold mb-4 text-[var(--neu-text)]">
           Simple, Transparent Pricing
         </h2>
-        <p className={`text-lg opacity-60 max-w-2xl mx-auto ${darkMode ? "text-white" : "text-black"}`}>
+        <p className="text-lg opacity-80 max-w-2xl mx-auto text-[var(--neu-text)]">
           Choose the perfect plan for your needs. Start free and upgrade as you grow.
         </p>
       </div>
@@ -91,58 +91,40 @@ export default function PricingSection({ darkMode }: PricingSectionProps) {
         {plans.map((plan, index) => (
           <div
             key={index}
-            className={`relative p-8 rounded-2xl transition-all duration-300 hover:scale-105 ${
-              plan.popular
-                ? `ring-2 ring-white ${
-                    darkMode
-                      ? "bg-[#212121] shadow-[6px_6px_12px_#000,-6px_-6px_12px_#2f2f2f]"
-                      : "bg-[#e8e8e8] shadow-[6px_6px_12px_#c5c5c5,-6px_-6px_12px_#ffffff]"
-                  }`
-                : darkMode
-                  ? "bg-[#212121] shadow-[6px_6px_12px_#000,-6px_-6px_12px_#2f2f2f]"
-                  : "bg-[#e8e8e8] shadow-[6px_6px_12px_#c5c5c5,-6px_-6px_12px_#ffffff]"
-            }`}
+            className={`relative p-8 neu-radius neu-bg neu-shadow neu-transition ${plan.popular ? 'ring-2 ring-[var(--neu-border)]' : ''}`}
           >
             {plan.popular && (
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-white text-black px-4 py-1 rounded-full text-sm font-semibold">Most Popular</span>
+                <span className="px-4 py-1 neu-radius text-sm font-semibold neu-bg neu-shadow text-[var(--neu-text)]">Most Popular</span>
               </div>
             )}
 
             <div className="text-center mb-8">
-              <h3 className={`text-2xl font-bold mb-2 ${darkMode ? "text-white" : "text-black"}`}>{plan.name}</h3>
+              <h3 className="text-2xl font-bold mb-2 text-[var(--neu-text)]">{plan.name}</h3>
               <div className="mb-2">
-                <span className={`text-4xl font-bold ${darkMode ? "text-white" : "text-black"}`}>{plan.price}</span>
-                <span className={`text-sm opacity-60 ml-1 ${darkMode ? "text-white" : "text-black"}`}>
+                <span className="text-4xl font-bold text-[var(--neu-text)]">{plan.price}</span>
+                <span className="text-sm opacity-70 ml-1 text-[var(--neu-text)]">
                   /{plan.period}
                 </span>
               </div>
-              <p className={`text-sm opacity-70 ${darkMode ? "text-white" : "text-black"}`}>{plan.description}</p>
+              <p className="text-sm opacity-80 text-[var(--neu-text)]">{plan.description}</p>
             </div>
 
             <ul className="space-y-4 mb-8">
               {plan.features.map((feature, featureIndex) => (
                 <li key={featureIndex} className="flex items-center gap-3">
                   <div
-                    className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
-                      darkMode ? "bg-white/20" : "bg-black/10"
-                    }`}
+                    className="flex-shrink-0 w-5 h-5 neu-radius flex items-center justify-center neu-bg neu-shadow-inset"
                   >
-                    <Check className={`w-3 h-3 ${darkMode ? "text-white" : "text-black"}`} />
+                    <Check className="w-3 h-3 text-[var(--neu-text)]" />
                   </div>
-                  <span className={`text-sm opacity-80 ${darkMode ? "text-white" : "text-black"}`}>{feature}</span>
+                  <span className="text-sm opacity-80 text-[var(--neu-text)]">{feature}</span>
                 </li>
               ))}
             </ul>
 
             <button
-              className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 disabled:opacity-60 ${
-                plan.popular
-                  ? "bg-white text-black hover:shadow-lg"
-                  : darkMode
-                    ? "bg-[#212121] text-white shadow-[6px_6px_12px_#000,-6px_-6px_12px_#2f2f2f] hover:shadow-[inset_4px_4px_12px_#000,inset_-4px_-4px_12px_#1f1f1f]"
-                    : "bg-[#e8e8e8] text-gray-900 shadow-[6px_6px_12px_#c5c5c5,-6px_-6px_12px_#ffffff] hover:shadow-[inset_4px_4px_12px_#c5c5c5,inset_-4px_-4px_12px_#ffffff]"
-              }`}
+              className={`w-full py-3 px-6 neu-radius font-semibold neu-transition disabled:opacity-60 neu-bg neu-shadow ${plan.popular ? 'ring-2 ring-[var(--neu-border)]' : ''}`}
               disabled={!!loading}
               onClick={() => handleCheckout(plan.planId)}
             >

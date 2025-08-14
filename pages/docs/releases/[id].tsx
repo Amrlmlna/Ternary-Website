@@ -108,80 +108,49 @@ export default function ReleasePage() {
 
   if (!release) {
     return (
-      <div
-        className={`min-h-screen flex items-center justify-center p-8 ${
-          darkMode ? "bg-[#0f0f0f] text-white" : "bg-[#f8f9fa] text-black"
-        }`}
-      >
-        <div
-          className={`text-center p-8 rounded-2xl ${
-            darkMode
-              ? "bg-[#0f0f0f] shadow-[inset_8px_8px_16px_#0a0a0a,inset_-8px_-8px_16px_#141414]"
-              : "bg-[#f8f9fa] shadow-[inset_8px_8px_16px_#e1e5e9,inset_-8px_-8px_16px_#ffffff]"
-          }`}
-        >
-          <h1 className="text-2xl font-semibold mb-2">Release not found</h1>
-          <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-            No release notes found for id: {id}
-          </p>
-          <Link
-            href="/"
-            className={`inline-flex items-center gap-2 mt-4 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
-              darkMode
-                ? "bg-[#0f0f0f] text-white shadow-[8px_8px_16px_#0a0a0a,-8px_-8px_16px_#141414] hover:shadow-[4px_4px_8px_#0a0a0a,-4px_-4px_8px_#141414]"
-                : "bg-[#f8f9fa] text-black shadow-[8px_8px_16px_#e1e5e9,-8px_-8px_16px_#ffffff] hover:shadow-[4px_4px_8px_#e1e5e9,-4px_-4px_8px_#ffffff]"
-            }`}
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
-          </Link>
+      <div className={darkMode ? "dark" : ""}>
+        <div className="min-h-screen flex items-center justify-center p-8 neu-bg text-[var(--neu-text)]">
+          <div className="text-center p-8 neu-radius neu-bg neu-shadow-inset">
+            <h1 className="text-2xl font-semibold mb-2">Release not found</h1>
+            <p className="opacity-70">No release notes found for id: {id}</p>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 mt-4 px-6 py-3 neu-radius font-medium neu-bg neu-shadow neu-transition"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Home
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`min-h-screen transition-colors duration-300 ${
-        darkMode ? "bg-[#0f0f0f] text-white" : "bg-[#f8f9fa] text-black"
-      }`}
-    >
+    <div className={darkMode ? "dark" : ""}>
+      <div className="min-h-screen neu-bg neu-transition text-[var(--neu-text)]">
       {!hideHeader && (
         <header
-          className={`w-full border-b ${
-            darkMode ? "border-gray-800" : "border-gray-200"
-          }`}
+          className={"w-full border-b border-[var(--neu-border)]"}
         >
           <div className="max-w-4xl mx-auto p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Link
                   href="/"
-                  className={`p-2 rounded-xl transition-all duration-200 ${
-                    darkMode
-                      ? "bg-[#0f0f0f] shadow-[4px_4px_8px_#0a0a0a,-4px_-4px_8px_#141414] hover:shadow-[2px_2px_4px_#0a0a0a,-2px_-2px_4px_#141414]"
-                      : "bg-[#f8f9fa] shadow-[4px_4px_8px_#e1e5e9,-4px_-4px_8px_#ffffff] hover:shadow-[2px_2px_4px_#e1e5e9,-2px_-2px_4px_#ffffff]"
-                  }`}
+                  className={"p-2 neu-radius neu-bg neu-shadow neu-transition"}
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </Link>
                 <div>
                   <h1 className="text-2xl font-bold">Release Notes</h1>
-                  <p
-                    className={`text-sm ${
-                      darkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
+                  <p className="text-sm opacity-70">
                     What's new in Ternary
                   </p>
                 </div>
               </div>
               <div
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl ${
-                  darkMode
-                    ? "bg-[#0f0f0f] shadow-[inset_4px_4px_8px_#0a0a0a,inset_-4px_-4px_8px_#141414]"
-                    : "bg-[#f8f9fa] shadow-[inset_4px_4px_8px_#e1e5e9,inset_-4px_-4px_8px_#ffffff]"
-                }`}
+                className={"flex items-center gap-2 px-4 py-2 neu-radius neu-bg neu-shadow-inset"}
               >
                 <Tag className="w-4 h-4" />
                 <span className="font-medium">v{release.title}</span>
@@ -194,41 +163,25 @@ export default function ReleasePage() {
       <main className="max-w-4xl mx-auto p-6">
         {/* Release Header */}
         <div
-          className={`p-8 rounded-2xl mb-8 ${
-            darkMode
-              ? "bg-[#0f0f0f] shadow-[8px_8px_16px_#0a0a0a,-8px_-8px_16px_#141414]"
-              : "bg-[#f8f9fa] shadow-[8px_8px_16px_#e1e5e9,-8px_-8px_16px_#ffffff]"
-          }`}
+          className={"p-8 neu-radius mb-8 neu-bg neu-shadow"}
         >
           <div className="flex items-start justify-between mb-4">
             <div>
               <h2 className="text-3xl font-bold mb-2">
                 {release.content.title}
               </h2>
-              <div
-                className={`flex items-center gap-2 text-sm ${
-                  darkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
+              <div className="flex items-center gap-2 text-sm opacity-70">
                 <Calendar className="w-4 h-4" />
                 <span>{release.date}</span>
               </div>
             </div>
           </div>
-          <p
-            className={`text-lg leading-relaxed mb-6 ${
-              darkMode ? "text-gray-300" : "text-gray-700"
-            }`}
-          >
+          <p className="text-lg leading-relaxed mb-6 opacity-80">
             {release.content.description}
           </p>
 
           <div
-            className={`rounded-2xl overflow-hidden ${
-              darkMode
-                ? "shadow-[inset_4px_4px_8px_#0a0a0a,inset_-4px_-4px_8px_#141414]"
-                : "shadow-[inset_4px_4px_8px_#e1e5e9,inset_-4px_-4px_8px_#ffffff]"
-            }`}
+            className={"neu-radius overflow-hidden neu-shadow-inset"}
           >
             <iframe
               src="https://app.supademo.com/demo/cmeai3enb009exn0ipp3blnf3?utm_source=linknow"
@@ -247,32 +200,17 @@ export default function ReleasePage() {
           {release.content.items.map((item, idx) => (
             <div
               key={idx}
-              className={`p-6 rounded-2xl transition-all duration-200 hover:scale-[1.02] ${
-                darkMode
-                  ? "bg-[#0f0f0f] shadow-[8px_8px_16px_#0a0a0a,-8px_-8px_16px_#141414] hover:shadow-[12px_12px_24px_#0a0a0a,-12px_-12px_24px_#141414]"
-                  : "bg-[#f8f9fa] shadow-[8px_8px_16px_#e1e5e9,-8px_-8px_16px_#ffffff] hover:shadow-[12px_12px_24px_#e1e5e9,-12px_-12px_24px_#ffffff]"
-              }`}
+              className={"p-6 neu-radius neu-bg neu-shadow neu-transition"}
             >
               <div className="flex items-start gap-4">
                 <div
-                  className={`p-3 rounded-xl ${getItemColor(
-                    item.type,
-                    darkMode
-                  )} ${
-                    darkMode
-                      ? "bg-[#0f0f0f] shadow-[inset_4px_4px_8px_#0a0a0a,inset_-4px_-4px_8px_#141414]"
-                      : "bg-[#f8f9fa] shadow-[inset_4px_4px_8px_#e1e5e9,inset_-4px_-4px_8px_#ffffff]"
-                  }`}
+                  className={`p-3 neu-radius ${getItemColor(item.type, darkMode)} neu-bg neu-shadow-inset`}
                 >
                   {getItemIcon(item.type)}
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
-                  <div
-                    className={`leading-relaxed ${
-                      darkMode ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
+                  <div className="leading-relaxed opacity-80">
                     {item.content}
                   </div>
                 </div>
@@ -283,27 +221,18 @@ export default function ReleasePage() {
 
         {/* Footer */}
         <div
-          className={`mt-12 p-6 rounded-2xl text-center ${
-            darkMode
-              ? "bg-[#0f0f0f] shadow-[inset_8px_8px_16px_#0a0a0a,inset_-8px_-8px_16px_#141414]"
-              : "bg-[#f8f9fa] shadow-[inset_8px_8px_16px_#e1e5e9,inset_-8px_-8px_16px_#ffffff]"
-          }`}
+          className={"mt-12 p-6 neu-radius text-center neu-bg neu-shadow-inset"}
         >
-          <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-            Have feedback about this release? Let us know in our community.
-          </p>
+          <p className={"opacity-70"}>Have feedback about this release? Let us know in our community.</p>
           <Link
             href="/community"
-            className={`inline-flex items-center gap-2 mt-4 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
-              darkMode
-                ? "bg-[#0f0f0f] text-white shadow-[8px_8px_16px_#0a0a0a,-8px_-8px_16px_#141414] hover:shadow-[4px_4px_8px_#0a0a0a,-4px_-4px_8px_#141414]"
-                : "bg-[#f8f9fa] text-black shadow-[8px_8px_16px_#e1e5e9,-8px_-8px_16px_#ffffff] hover:shadow-[4px_4px_8px_#e1e5e9,-4px_-4px_8px_#ffffff]"
-            }`}
+            className={"inline-flex items-center gap-2 mt-4 px-6 py-3 neu-radius font-medium neu-bg neu-shadow neu-transition"}
           >
             Join Community
           </Link>
         </div>
       </main>
+      </div>
     </div>
   );
 }

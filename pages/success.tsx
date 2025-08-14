@@ -76,11 +76,8 @@ export default function SuccessPage({
   };
 
   return (
-    <div
-      className={`min-h-screen transition-all duration-500 ${
-        darkMode ? "bg-[#1a1a1a] text-white" : "bg-[#f0f0f0] text-gray-900"
-      }`}
-    >
+    <div className={darkMode ? "dark" : ""}>
+      <div className="min-h-screen neu-bg neu-transition">
       <Navbar
         darkMode={darkMode}
         onDownloadClick={() => {}}
@@ -89,31 +86,21 @@ export default function SuccessPage({
 
       <div className="min-h-screen flex items-center justify-center px-4">
         <div
-          className={`max-w-md w-full p-8 rounded-3xl ${
-            darkMode
-              ? "bg-[#1a1a1a] shadow-[inset_8px_8px_16px_#0f0f0f,inset_-8px_-8px_16px_#252525]"
-              : "bg-[#f0f0f0] shadow-[inset_8px_8px_16px_#d1d1d1,inset_-8px_-8px_16px_#ffffff]"
-          }`}
+          className="max-w-md w-full p-8 neu-radius neu-bg neu-shadow neu-transition"
         >
           <div className="text-center">
             <div
-              className={`w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center ${
-                darkMode
-                  ? "bg-[#1a1a1a] shadow-[8px_8px_16px_#0f0f0f,-8px_-8px_16px_#252525]"
-                  : "bg-[#f0f0f0] shadow-[8px_8px_16px_#d1d1d1,-8px_-8px_16px_#ffffff]"
-              }`}
+              className="w-16 h-16 mx-auto mb-6 neu-radius flex items-center justify-center neu-bg neu-shadow"
             >
               <CheckCircle className="w-8 h-8 text-green-500" />
             </div>
 
             <h1
-              className={`text-2xl font-bold mb-2 ${
-                darkMode ? "text-white" : "text-black"
-              }`}
+              className="text-2xl font-bold mb-2 text-[var(--neu-text)]"
             >
               Payment Successful!
             </h1>
-            <p className={`mb-8 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+            <p className="mb-8 opacity-80 text-[var(--neu-text)]">
               {apiKey
                 ? "Welcome to Ternary Pro! Your API key is ready."
                 : localError || "We couldn't find your API key on this page. Please return to the app or contact support if this persists."}
@@ -121,57 +108,35 @@ export default function SuccessPage({
 
             {loading ? (
               <div
-                className={`p-4 rounded-2xl mb-6 ${
-                  darkMode
-                    ? "bg-[#1a1a1a] shadow-[inset_4px_4px_8px_#0f0f0f,inset_-4px_-4px_8px_#252525]"
-                    : "bg-[#f0f0f0] shadow-[inset_4px_4px_8px_#d1d1d1,inset_-4px_-4px_8px_#ffffff]"
-                }`}
+                className="p-4 neu-radius mb-6 neu-bg neu-shadow neu-transition"
               >
                 <div className="animate-pulse">
                   <div
-                    className={`h-4 rounded mb-2 ${
-                      darkMode ? "bg-gray-700" : "bg-gray-300"
-                    }`}
+                    className="h-4 rounded mb-2 bg-[var(--neu-border)]/60"
                   ></div>
                   <div
-                    className={`h-4 rounded w-3/4 ${
-                      darkMode ? "bg-gray-700" : "bg-gray-300"
-                    }`}
+                    className="h-4 rounded w-3/4 bg-[var(--neu-border)]/60"
                   ></div>
                 </div>
               </div>
             ) : apiKey ? (
               <div
-                className={`p-4 rounded-2xl mb-6 ${
-                  darkMode
-                    ? "bg-[#1a1a1a] shadow-[inset_4px_4px_8px_#0f0f0f,inset_-4px_-4px_8px_#252525]"
-                    : "bg-[#f0f0f0] shadow-[inset_4px_4px_8px_#d1d1d1,inset_-4px_-4px_8px_#ffffff]"
-                }`}
+                className="p-4 neu-radius mb-6 neu-bg neu-shadow-inset neu-transition"
               >
                 <p
-                  className={`text-sm mb-2 ${
-                    darkMode ? "text-gray-400" : "text-gray-500"
-                  }`}
+                  className="text-sm mb-2 opacity-70 text-[var(--neu-text)]"
                 >
                   Your API Key:
                 </p>
                 <div className="flex items-center gap-2">
                   <code
-                    className={`flex-1 text-sm p-2 rounded-lg font-mono ${
-                      darkMode
-                        ? "bg-gray-800 text-green-400"
-                        : "bg-gray-100 text-green-600"
-                    }`}
+                    className="flex-1 text-sm p-2 neu-radius font-mono neu-bg neu-shadow-inset text-[var(--neu-text)]"
                   >
                     {apiKey}
                   </code>
                   <button
                     onClick={copyApiKey}
-                    className={`p-2 rounded-lg transition-all ${
-                      darkMode
-                        ? "bg-[#1a1a1a] shadow-[4px_4px_8px_#0f0f0f,-4px_-4px_8px_#252525] hover:shadow-[inset_4px_4px_8px_#0f0f0f,inset_-4px_-4px_8px_#252525]"
-                        : "bg-[#f0f0f0] shadow-[4px_4px_8px_#d1d1d1,-4px_-4px_8px_#ffffff] hover:shadow-[inset_4px_4px_8px_#d1d1d1,inset_-4px_-4px_8px_#ffffff]"
-                    }`}
+                    className="p-2 neu-radius neu-transition neu-bg neu-shadow"
                   >
                     <Copy className="w-4 h-4" />
                   </button>
@@ -184,17 +149,13 @@ export default function SuccessPage({
               </div>
             ) : (
               <div
-                className={`p-4 rounded-2xl mb-6 ${
-                  darkMode
-                    ? "bg-[#1a1a1a] shadow-[inset_4px_4px_8px_#0f0f0f,inset_-4px_-4px_8px_#252525]"
-                    : "bg-[#f0f0f0] shadow-[inset_4px_4px_8px_#d1d1d1,inset_-4px_-4px_8px_#ffffff]"
-                }`}
+                className="p-4 neu-radius mb-6 neu-bg neu-shadow neu-transition"
               >
-                <p className={`text-sm ${darkMode ? "text-red-400" : "text-red-600"}`}>
+                <p className="text-sm text-red-500">
                   {localError || "Missing API key. Please ensure you reached this page via the payment flow."}
                 </p>
                 {sessionId && !loading && (
-                  <p className="text-sm mt-2 text-gray-500">
+                  <p className="text-sm mt-2 opacity-70 text-[var(--neu-text)]">
                     The page will auto-refresh while we confirm your payment...
                   </p>
                 )}
@@ -205,12 +166,8 @@ export default function SuccessPage({
               <button
                 onClick={openTernaryApp}
                 disabled={loading || !apiKey}
-                className={`w-full py-3 px-6 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${
-                  loading || !apiKey
-                    ? "opacity-50 cursor-not-allowed"
-                    : darkMode
-                    ? "bg-[#1a1a1a] shadow-[8px_8px_16px_#0f0f0f,-8px_-8px_16px_#252525] hover:shadow-[inset_8px_8px_16px_#0f0f0f,inset_-8px_-8px_16px_#252525] text-white"
-                    : "bg-[#f0f0f0] shadow-[8px_8px_16px_#d1d1d1,-8px_-8px_16px_#ffffff] hover:shadow-[inset_8px_8px_16px_#d1d1d1,inset_-8px_-8px_16px_#ffffff] text-black"
+                className={`w-full py-3 px-6 neu-radius font-medium neu-transition flex items-center justify-center gap-2 neu-bg neu-shadow ${
+                  loading || !apiKey ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
                 <ExternalLink className="w-4 h-4" />
@@ -219,17 +176,14 @@ export default function SuccessPage({
 
               <button
                 onClick={() => (window.location.href = "/")}
-                className={`w-full py-3 px-6 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${
-                  darkMode
-                    ? "bg-[#1a1a1a] shadow-[8px_8px_16px_#0f0f0f,-8px_-8px_16px_#252525] hover:shadow-[inset_8px_8px_16px_#0f0f0f,inset_-8px_-8px_16px_#252525] text-white"
-                    : "bg-[#f0f0f0] shadow-[8px_8px_16px_#d1d1d1,-8px_-8px_16px_#ffffff] hover:shadow-[inset_8px_8px_16px_#d1d1d1,inset_-8px_-8px_16px_#ffffff] text-black"
-                }`}
+                className="w-full py-3 px-6 neu-radius font-medium neu-transition flex items-center justify-center gap-2 neu-bg neu-shadow"
               >
                 Back to Home
               </button>
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

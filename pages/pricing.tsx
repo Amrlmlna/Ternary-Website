@@ -1,15 +1,74 @@
-import type { NextPage } from "next";
+"use client";
+
+import { Check } from "lucide-react";
 import { useState } from "react";
 
-const Pricing: NextPage = () => {
+interface PricingSectionProps {
+  darkMode: boolean;
+}
+
+export default function PricingSection({ darkMode }: PricingSectionProps) {
   const [loading, setLoading] = useState<string | null>(null);
-  const handleCheckout = async (plan: string) => {
-    setLoading(plan);
+
+  const plans = [
+    {
+      name: "Hobby",
+      price: "$0",
+      period: "forever",
+      description: "Perfect for getting started with AI website building",
+      features: [
+        "100 requests/month",
+        "Unique API Key",
+        "Basic dashboard",
+        "Priority support",
+        "Export to HTML/CSS",
+      ],
+      popular: false,
+      planId: "hobby",
+    },
+    {
+      name: "Pro",
+      price: "$20",
+      period: "per month",
+      description: "For professionals and growing businesses",
+      features: [
+        "100,000 requests/month",
+        "Unique API Key",
+        "Full dashboard",
+        "Priority support",
+        "Export to React/Next.js",
+        "Advanced AI features",
+        "Team collaboration",
+      ],
+      popular: true,
+      planId: "pro",
+    },
+    {
+      name: "Ultra",
+      price: "$75",
+      period: "per month",
+      description: "For large teams and organizations",
+      features: [
+        "1,000,000 requests/month",
+        "Unique API Key",
+        "All Pro features",
+        "Dedicated support",
+        "Advanced analytics",
+        "Custom integrations",
+        "Custom AI training",
+      ],
+      popular: false,
+      planId: "ultra",
+    },
+  ];
+
+  const handleCheckout = async (planId: string) => {
+    setLoading(planId);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({ plan: planId }),
       });
       const data = await res.json();
       if (data.url) {
@@ -22,110 +81,81 @@ const Pricing: NextPage = () => {
     }
     setLoading(null);
   };
-  return (
-    <main className="min-h-screen flex flex-col items-center justify-center neu-bg">
-      <div className="neu-shadow neu-radius p-8 max-w-4xl w-full text-center mt-10">
-        <h1 className="text-3xl font-bold mb-6 accent font-sans">
-          Choose Your Plan
-        </h1>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-          {/* Hobby Plan */}
-          <div className="neu-shadow neu-radius p-6 neu-bg flex flex-col items-center border border-[var(--neu-border)]">
-            <h3
-              className="text-xl font-semibold mb-2 font-sans"
-              style={{ color: "var(--neu-text)" }}
-            >
-              Hobby
-            </h3>
-            <div
-              className="text-3xl font-bold mb-2 font-sans"
-              style={{ color: "var(--neu-text)" }}
-            >
-              $0
-            </div>
-            <ul
-              className="text-left text-sm mb-4 opacity-80 font-sans"
-              style={{ color: "var(--neu-text)" }}
-            >
-              <li> 100 requests/month</li>
-              <li> Unique API Key</li>
-              <li> Basic dashboard</li>
-              <li> Priority support</li>
-            </ul>
-            <button
-              className="bg-accent neu-radius px-5 py-2 font-semibold shadow-lg transition hover:scale-105 disabled:opacity-60 font-sans"
-              disabled={!!loading}
-              onClick={() => handleCheckout("hobby")}
-            >
-              {loading === "hobby" ? "Processing..." : "Get Started"}
-            </button>
-          </div>
-          {/* Pro Plan */}
-          <div className="neu-shadow neu-radius p-6 neu-bg flex flex-col items-center border border-[var(--neu-border)]">
-            <h3
-              className="text-xl font-semibold mb-2 font-sans"
-              style={{ color: "var(--neu-text)" }}
-            >
-              Pro
-            </h3>
-            <div
-              className="text-3xl font-bold mb-2 font-sans"
-              style={{ color: "var(--neu-text)" }}
-            >
-              $20
-            </div>
-            <ul
-              className="text-left text-sm mb-4 opacity-80 font-sans"
-              style={{ color: "var(--neu-text)" }}
-            >
-              <li> 100,000 requests/month</li>
-              <li> Unique API Key</li>
-              <li> Full dashboard</li>
-              <li> Priority support</li>
-            </ul>
-            <button
-              className="bg-accent neu-radius px-5 py-2 font-semibold shadow-lg transition hover:scale-105 disabled:opacity-60 font-sans"
-              disabled={!!loading}
-              onClick={() => handleCheckout("pro")}
-            >
-              {loading === "pro" ? "Processing..." : "Buy Now"}
-            </button>
-          </div>
-          {/* Ultra Plan */}
-          <div className="neu-shadow neu-radius p-6 neu-bg flex flex-col items-center border border-[var(--neu-border)]">
-            <h3
-              className="text-xl font-semibold mb-2 font-sans"
-              style={{ color: "var(--neu-text)" }}
-            >
-              Ultra
-            </h3>
-            <div
-              className="text-3xl font-bold mb-2 font-sans"
-              style={{ color: "var(--neu-text)" }}
-            >
-              $75
-            </div>
-            <ul
-              className="text-left text-sm mb-4 opacity-80 font-sans"
-              style={{ color: "var(--neu-text)" }}
-            >
-              <li> 1,000,000 requests/month</li>
-              <li> Unique API Key</li>
-              <li> All Pro features</li>
-              <li> Dedicated support</li>
-            </ul>
-            <button
-              className="bg-accent neu-radius px-5 py-2 font-semibold shadow-lg transition hover:scale-105 disabled:opacity-60 font-sans"
-              disabled={!!loading}
-              onClick={() => handleCheckout("ultra")}
-            >
-              {loading === "ultra" ? "Processing..." : "Buy Now"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </main>
-  );
-};
 
-export default Pricing;
+  return (
+    <div className="container mx-auto px-6 py-20">
+      <div className="text-center mb-16">
+        <h2 className="text-4xl font-bold mb-4 text-[var(--neu-text)]">
+          Simple, Transparent Pricing
+        </h2>
+        <p className="text-lg opacity-80 max-w-2xl mx-auto text-[var(--neu-text)]">
+          Choose the perfect plan for your needs. Start free and upgrade as you
+          grow.
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        {plans.map((plan, index) => (
+          <div
+            key={index}
+            className={`relative p-8 neu-radius neu-bg neu-shadow neu-transition ${
+              plan.popular ? "ring-2 ring-[var(--neu-border)]" : ""
+            }`}
+          >
+            {plan.popular && (
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <span className="px-4 py-1 neu-radius text-sm font-semibold neu-bg neu-shadow text-[var(--neu-text)]">
+                  Most Popular
+                </span>
+              </div>
+            )}
+
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold mb-2 text-[var(--neu-text)]">
+                {plan.name}
+              </h3>
+              <div className="mb-2">
+                <span className="text-4xl font-bold text-[var(--neu-text)]">
+                  {plan.price}
+                </span>
+                <span className="text-sm opacity-70 ml-1 text-[var(--neu-text)]">
+                  /{plan.period}
+                </span>
+              </div>
+              <p className="text-sm opacity-80 text-[var(--neu-text)]">
+                {plan.description}
+              </p>
+            </div>
+
+            <ul className="space-y-4 mb-8">
+              {plan.features.map((feature, featureIndex) => (
+                <li key={featureIndex} className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-5 h-5 neu-radius flex items-center justify-center neu-bg neu-shadow-inset">
+                    <Check className="w-3 h-3 text-[var(--neu-text)]" />
+                  </div>
+                  <span className="text-sm opacity-80 text-[var(--neu-text)]">
+                    {feature}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              className={`w-full py-3 px-6 neu-radius font-semibold neu-transition disabled:opacity-60 neu-bg neu-shadow ${
+                plan.popular ? "ring-2 ring-[var(--neu-border)]" : ""
+              }`}
+              disabled={!!loading}
+              onClick={() => handleCheckout(plan.planId)}
+            >
+              {loading === plan.planId
+                ? "Processing..."
+                : plan.name === "Hobby"
+                ? "Get Started"
+                : "Buy Now"}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

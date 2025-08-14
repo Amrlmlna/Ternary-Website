@@ -131,41 +131,29 @@ export default function HeroSection({ darkMode }: HeroSectionProps) {
       {/* Left content container */}
       <div className="flex-1 max-w-4xl ml-8 text-left my-0 z-10 mb-0 py-[75px] px-[77px]">
         <h1
-          className={`text-6xl font-bold mb-6 text-left md:text-9xl ${
-            darkMode ? "text-white" : "text-black"
-          }`}
+          className={`text-6xl font-bold mb-6 text-left md:text-9xl text-[var(--neu-text)]`}
         >
           Ternary
         </h1>
 
         <p
-          className={`text-xl md:text-2xl opacity-80 leading-relaxed text-left mb-[52px] mr-[21px] ${
-            darkMode ? "text-white" : "text-gray-900"
-          }`}
+          className={`text-xl md:text-2xl opacity-80 leading-relaxed text-left mb-[52px] mr-[21px] text-[var(--neu-text)]`}
         >
           Code Smarter. Build Faster. Ship Better.
         </p>
 
         <div
           ref={downloadSectionRef}
-          className={`inline-block p-4 rounded-xl border-0 px-[50px] py-[16px] ${
-            darkMode
-              ? "bg-[#212121] shadow-[6px_6px_12px_#000,-6px_-6px_12px_#2f2f2f]"
-              : "bg-[#e8e8e8] shadow-[6px_6px_12px_#c5c5c5,-6px_-6px_12px_#ffffff]"
-          }`}
+          className={`inline-block p-4 px-[50px] py-[16px] neu-bg neu-radius neu-shadow`}
         >
           <div className="flex items-center justify-center gap-2 mb-3">
             <Monitor className="w-4 h-4 opacity-60" />
             <span
-              className={`text-sm opacity-60 ${
-                darkMode ? "text-white" : "text-gray-900"
-              }`}
+              className={`text-sm opacity-60 text-[var(--neu-text)]`}
             >
               Detected:{" "}
               <span
-                className={`font-semibold ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
+                className={`font-semibold text-[var(--neu-text)]`}
               >
                 {userOS}
               </span>
@@ -175,9 +163,7 @@ export default function HeroSection({ darkMode }: HeroSectionProps) {
           {loading ? (
             <div className="animate-pulse">
               <div
-                className={`h-10 w-56 rounded-xl mx-auto ${
-                  darkMode ? "bg-[#2a2a2a]" : "bg-[#d0d0d0]"
-                }`}
+                className={`h-10 w-56 rounded-xl mx-auto bg-[var(--neu-border)]`}
               ></div>
             </div>
           ) : downloadOptions.length > 0 ? (
@@ -186,17 +172,7 @@ export default function HeroSection({ darkMode }: HeroSectionProps) {
                 <a
                   key={index}
                   href={option.asset.url}
-                  className={`flex items-center gap-3 px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 ${
-                    option.isDetected
-                      ? "bg-white text-black" // Highlighted style for detected OS
-                      : darkMode
-                      ? "bg-[#2a2a2a] text-white hover:bg-[#333]"
-                      : "bg-[#d0d0d0] text-gray-900 hover:bg-[#c0c0c0]"
-                  } ${
-                    darkMode
-                      ? "shadow-[4px_4px_8px_#000,-4px_-4px_8px_#2f2f2f] hover:shadow-[inset_2px_2px_8px_rgba(0,0,0,0.3)]"
-                      : "shadow-[4px_4px_8px_#c5c5c5,-4px_-4px_8px_#ffffff] hover:shadow-[inset_2px_2px_8px_rgba(0,0,0,0.1)]"
-                  }`}
+                  className={`flex items-center gap-3 px-5 py-2 neu-bg neu-radius neu-shadow font-semibold text-sm transition-all duration-300 ${option.isDetected ? 'ring-2 ring-[var(--neu-border)]' : ''}`}
                 >
                   <Download className="w-4 h-4" />
                   <span className="flex-1 text-left">{option.os}</span>
@@ -207,15 +183,13 @@ export default function HeroSection({ darkMode }: HeroSectionProps) {
                 </a>
               ))}
               <p
-                className={`text-xs opacity-60 text-center mt-2 ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
+                className={`text-xs opacity-60 text-center mt-2 text-[var(--neu-text)]`}
               >
                 v{release?.version} • Free & Open Source
               </p>
             </div>
           ) : (
-            <p className="text-red-500">Unable to load downloads</p>
+            <p className="text-[var(--destructive)]">Unable to load downloads</p>
           )}
         </div>
       </div>
