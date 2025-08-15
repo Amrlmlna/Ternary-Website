@@ -1,6 +1,61 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { Readable } from "stream";
 
+type RankedFile = { path: string; score: number };
+
+// Lightweight heuristic ranking using last user message keywords and file path/content matches
+function rankFilesByRelevance(
+  messages: Array<{ role: string; content?: string }>,
+  files: Array<{ path: string; content: string }>
+): RankedFile[] {
+  const lastUser = [...messages].reverse().find((m) => m?.role === "user");
+  const query = (lastUser?.content || "").toLowerCase();
+  const qTokens = new Set(
+    query
+      .split(/[^a-z0-9_]+/i)
+      .map((t) => t.trim())
+      .filter((t) => t.length >= 3 && t.length <= 64)
+  );
+
+  const scoreFile = (f: { path: string; content: string }): number => {
+    const pathLc = f.path.toLowerCase();
+    const contentLc = (f.content || "").toLowerCase();
+    let score = 0;
+    // Path-based boosts
+    if (pathLc.includes("src/components")) score += 1.5;
+    if (pathLc.includes("src/hooks")) score += 1.0;
+    if (pathLc.includes("src/pages")) score += 1.0;
+    if (pathLc.endsWith(".spec.ts") || pathLc.endsWith(".test.ts"))
+      score += 0.3;
+
+    // Token overlap in path
+    for (const tok of qTokens) {
+      if (pathLc.includes(tok)) score += 1.2;
+    }
+    // Token overlap in content (limited sampling)
+    const snippet = contentLc.slice(0, 5000); // avoid heavy compute
+    for (const tok of qTokens) {
+      if (snippet.includes(tok)) score += 0.4;
+    }
+    // Exact phrase hints
+    if (query && snippet.includes(query)) score += 2.0;
+    return score;
+  };
+
+  const ranked = files.map((f) => ({ path: f.path, score: scoreFile(f) }));
+  ranked.sort((a, b) => b.score - a.score);
+  return ranked;
+}
+
+// Allow larger payloads to accommodate Smart Context files
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "10mb",
+    },
+  },
+};
+
 // Simplified configuration: all we need is the LiteLLM endpoint.
 const LITELLM_ENDPOINT =
   process.env.LITELLM_BASE_URL || "https://ternary-gatewayy.up.railway.app";
@@ -8,8 +63,8 @@ const LITELLM_ENDPOINT =
 // Define available models for routing logic using the correct public model names.
 const AVAILABLE_MODELS = [
   "gpt-3.5-turbo",
-  "gemini/gemini-2.5-pro",
-  "gemini/gemini-2.5-flash",
+  "gemini-2.5-pro",
+  "gemini-2.5-flash",
   "openrouter/meta-llama/llama-3-8b-instruct:free",
   "openrouter/mistralai/mistral-7b-instruct:free",
 ];
@@ -17,7 +72,7 @@ const AVAILABLE_MODELS = [
 // --- Model Aliases and Auto Mode Logic ---
 const MODEL_ALIASES: Record<string, string> = {
   // Alias gemini-1.5-pro to the correct gemini-2.5-pro public name
-  "gemini-1.5-pro": "gemini@gemini-2.5-pro",
+  "gemini-1.5-pro": "gemini/gemini-2.5-pro",
   // Ensure aliases point to the exact public model names
 };
 
@@ -99,10 +154,41 @@ export default async function handler(
     const {
       model: requestedModel = "auto",
       messages,
-      ternary_options,
-      files,
       ...body
-    } = req.body;
+    } = req.body || {};
+    const requestIdHeader = req.headers["x-ternary-request-id"] as
+      | string
+      | undefined;
+    if (requestIdHeader) console.log("[REQUEST-ID]", requestIdHeader);
+
+    // Basic validation for messages
+    if (!Array.isArray(messages) || messages.some((m) => !m || !m.role)) {
+      return res
+        .status(400)
+        .json({ error: { message: "Invalid 'messages' format" } });
+    }
+
+    // Engine contract: options and files arrive inside body.ternary_options with snake_case keys
+    const ternaryOptions = (req.body?.ternary_options ?? {}) as {
+      files?: { path: string; content: string }[];
+      enable_lazy_edits?: boolean;
+      enable_smart_files_context?: boolean;
+      // Back-compat: allow camelCase if some client sends it
+      enableLazyEdits?: boolean;
+      enableSmartFilesContext?: boolean;
+    };
+    // Prefer snake_case; fallback to camelCase for compatibility
+    const enableSmartFilesContext =
+      ternaryOptions.enable_smart_files_context ??
+      ternaryOptions.enableSmartFilesContext ??
+      false;
+    const providedFiles =
+      Array.isArray(ternaryOptions.files) && ternaryOptions.files.length > 0
+        ? (ternaryOptions.files as { path: string; content: string }[])
+        : // ultimate fallback: accept legacy top-level files if present
+        Array.isArray((req.body as any)?.files)
+        ? (req.body as any).files
+        : undefined;
 
     const modelKey = resolveModel(requestedModel);
 
@@ -113,9 +199,30 @@ export default async function handler(
     }
 
     let finalMessages = messages;
-    if (ternary_options?.enableSmartFilesContext && files && files.length > 0) {
+    if (enableSmartFilesContext && providedFiles && providedFiles.length > 0) {
       console.log("Optimizing context with smart files...");
-      finalMessages = await optimizeContextWithSmartFiles(messages, files);
+      finalMessages = await optimizeContextWithSmartFiles(
+        messages,
+        providedFiles
+      );
+
+      // Engine directive: ask the model to surface Codebase Context and ranked files
+      const ranked = rankFilesByRelevance(messages, providedFiles).slice(0, 8);
+      const rankedPaths = ranked.map((r: RankedFile) => r.path);
+
+      const engineDirective = {
+        role: "system",
+        content: `You are integrated inside the Ternary App. When Smart Context is enabled, you MUST:
+1) In your <think> section, include a short 'Ranked files' list with scores (path: score), based on the user's request.
+2) At the top of your visible answer (right after </think>), output a <ternary-codebase-context files="${rankedPaths.join(
+          ", "
+        )}"></ternary-codebase-context> tag listing the selected file paths (comma-separated). Do not explain this tag; just output it.
+3) Use Ternary tags (<ternary-write>, <ternary-rename>, <ternary-delete>, <ternary-add-dependency>) for actions.
+4) If you reference attachments like TERNARY_ATTACHMENT_X in your reasoning, ensure that when writing files you include their content inside <ternary-write> blocks so they persist.`,
+      } as const;
+
+      // Prepend engine directive so it doesn't get truncated by context
+      finalMessages = [engineDirective, ...finalMessages];
     }
 
     // Construct the payload for LiteLLM, passing through all relevant options.
@@ -134,17 +241,25 @@ export default async function handler(
     };
 
     // Forward the request to the LiteLLM endpoint
+    // Forward request id for tracing if present
+    const requestId = req.headers["x-ternary-request-id"] as string | undefined;
+
     const response = await fetch(`${LITELLM_ENDPOINT}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: authHeader,
+        ...(requestId ? { "X-Ternary-Request-Id": requestId } : {}),
       },
       body: JSON.stringify(payload),
     });
 
     // Proxy the entire response from LiteLLM back to the client
     res.status(response.status);
+    if (requestId) {
+      // Echo request id for client correlation
+      res.setHeader("X-Ternary-Request-Id", requestId);
+    }
 
     // Copy all headers from the LiteLLM response to our response
     response.headers.forEach((value, key) => {
@@ -155,17 +270,28 @@ export default async function handler(
     });
 
     if (body.stream && response.body) {
+      // Strengthen SSE streaming behavior
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+      res.setHeader("X-Accel-Buffering", "no");
       // For streaming responses, pipe the body directly to the client
       Readable.fromWeb(response.body as any).pipe(res);
     } else {
-      // For non-streaming responses, properly format and send the JSON body in one go.
-      const data = await response.json();
-      res.status(response.status).json({
-        success: response.ok,
-        message: response.statusText,
-        responseObject: data,
-        statusCode: response.status,
-      });
+      // For non-streaming responses, forward upstream body as-is when possible
+      const text = await response.text();
+      try {
+        const data = JSON.parse(text);
+        // Pass through upstream payload while wrapping minimal metadata
+        res.status(response.status).json({
+          success: response.ok,
+          message: response.statusText,
+          responseObject: data,
+          statusCode: response.status,
+        });
+      } catch {
+        // Upstream did not return JSON; forward raw text
+        res.status(response.status).send(text);
+      }
       return; // Explicitly return to end execution.
     }
   } catch (error: any) {
@@ -184,10 +310,26 @@ async function optimizeContextWithSmartFiles(
   messages: any[],
   files: { path: string; content: string }[]
 ): Promise<any[]> {
-  // Limit to a reasonable number of files to avoid excessive token usage
-  const limitedFiles = files.slice(0, 10); // Cap at 10 files
+  // Smarter trimming: cap number of files and total content size
+  const MAX_FILES = 12;
+  const MAX_TOTAL_CHARS = 200_000; // ~50k tokens rough upper bound
+  const MAX_FILE_CHARS = 25_000;
 
-  const filesContext = limitedFiles
+  const trimmed: { path: string; content: string }[] = [];
+  let total = 0;
+  for (const f of files.slice(0, MAX_FILES)) {
+    let c = f.content ?? "";
+    if (c.length > MAX_FILE_CHARS) {
+      c =
+        c.slice(0, MAX_FILE_CHARS) +
+        "\n[...TRUNCATED BY ENGINE FOR CONTEXT SIZE...]";
+    }
+    if (total + c.length > MAX_TOTAL_CHARS) break;
+    trimmed.push({ path: f.path, content: c });
+    total += c.length;
+  }
+
+  const filesContext = trimmed
     .map((file) => `File: ${file.path}\n\n\`\`\`\n${file.content}\n\`\`\`\n`)
     .join("\n---\n");
 
