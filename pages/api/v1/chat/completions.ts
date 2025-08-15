@@ -6,7 +6,7 @@ type RankedFile = { path: string; score: number };
 // Lightweight heuristic ranking using last user message keywords and file path/content matches
 function rankFilesByRelevance(
   messages: Array<{ role: string; content?: string }>,
-  files: Array<{ path: string; content: string }>
+  files: Array<{ path: string; content: string }>,
 ): RankedFile[] {
   const lastUser = [...messages].reverse().find((m) => m?.role === "user");
   const query = (lastUser?.content || "").toLowerCase();
@@ -14,7 +14,7 @@ function rankFilesByRelevance(
     query
       .split(/[^a-z0-9_]+/i)
       .map((t) => t.trim())
-      .filter((t) => t.length >= 3 && t.length <= 64)
+      .filter((t) => t.length >= 3 && t.length <= 64),
   );
 
   const scoreFile = (f: { path: string; content: string }): number => {
@@ -25,8 +25,7 @@ function rankFilesByRelevance(
     if (pathLc.includes("src/components")) score += 1.5;
     if (pathLc.includes("src/hooks")) score += 1.0;
     if (pathLc.includes("src/pages")) score += 1.0;
-    if (pathLc.endsWith(".spec.ts") || pathLc.endsWith(".test.ts"))
-      score += 0.3;
+    if (pathLc.endsWith(".spec.ts") || pathLc.endsWith(".test.ts")) score += 0.3;
 
     // Token overlap in path
     for (const tok of qTokens) {
@@ -40,7 +39,7 @@ function rankFilesByRelevance(
     // Exact phrase hints
     if (query && snippet.includes(query)) score += 2.0;
     return score;
-  };
+    };
 
   const ranked = files.map((f) => ({ path: f.path, score: scoreFile(f) }));
   ranked.sort((a, b) => b.score - a.score);
@@ -62,6 +61,7 @@ const LITELLM_ENDPOINT =
 
 // Define available models for routing logic using the correct public model names.
 const AVAILABLE_MODELS = [
+  "gpt-3.5-turbo",
   "gemini/gemini-2.5-pro",
   "gemini/gemini-2.5-flash",
   "openrouter/meta-llama/llama-3-8b-instruct:free",
@@ -150,21 +150,21 @@ export default async function handler(
       });
     }
 
-    const {
-      model: requestedModel = "auto",
-      messages,
-      ...body
-    } = req.body || {};
-    const requestIdHeader = req.headers["x-ternary-request-id"] as
-      | string
-      | undefined;
+    const { model: requestedModel = "auto", messages, ...body } = req.body || {};
+    // Log the raw payload received by this API
+    try {
+      const rawSize = Buffer.byteLength(JSON.stringify(req.body || {}), "utf8");
+      console.log("[ENGINE] Incoming payload from app", {
+        sizeBytes: rawSize,
+        payload: req.body,
+      });
+    } catch {}
+    const requestIdHeader = req.headers["x-ternary-request-id"] as string | undefined;
     if (requestIdHeader) console.log("[REQUEST-ID]", requestIdHeader);
 
     // Basic validation for messages
     if (!Array.isArray(messages) || messages.some((m) => !m || !m.role)) {
-      return res
-        .status(400)
-        .json({ error: { message: "Invalid 'messages' format" } });
+      return res.status(400).json({ error: { message: "Invalid 'messages' format" } });
     }
 
     // Engine contract: options and files arrive inside body.ternary_options with snake_case keys
@@ -178,16 +178,12 @@ export default async function handler(
     };
     // Prefer snake_case; fallback to camelCase for compatibility
     const enableSmartFilesContext =
-      ternaryOptions.enable_smart_files_context ??
-      ternaryOptions.enableSmartFilesContext ??
-      false;
+      ternaryOptions.enable_smart_files_context ?? ternaryOptions.enableSmartFilesContext ?? false;
     const providedFiles =
       Array.isArray(ternaryOptions.files) && ternaryOptions.files.length > 0
         ? (ternaryOptions.files as { path: string; content: string }[])
         : // ultimate fallback: accept legacy top-level files if present
-        Array.isArray((req.body as any)?.files)
-        ? (req.body as any).files
-        : undefined;
+          (Array.isArray((req.body as any)?.files) ? (req.body as any).files : undefined);
 
     const modelKey = resolveModel(requestedModel);
 
@@ -200,10 +196,7 @@ export default async function handler(
     let finalMessages = messages;
     if (enableSmartFilesContext && providedFiles && providedFiles.length > 0) {
       console.log("Optimizing context with smart files...");
-      finalMessages = await optimizeContextWithSmartFiles(
-        messages,
-        providedFiles
-      );
+      finalMessages = await optimizeContextWithSmartFiles(messages, providedFiles);
 
       // Engine directive: ask the model to surface Codebase Context and ranked files
       const ranked = rankFilesByRelevance(messages, providedFiles).slice(0, 8);
@@ -211,11 +204,10 @@ export default async function handler(
 
       const engineDirective = {
         role: "system",
-        content: `You are integrated inside the Ternary App. When Smart Context is enabled, you MUST:
+        content:
+          `You are integrated inside the Ternary App. When Smart Context is enabled, you MUST:
 1) In your <think> section, include a short 'Ranked files' list with scores (path: score), based on the user's request.
-2) At the top of your visible answer (right after </think>), output a <ternary-codebase-context files="${rankedPaths.join(
-          ", "
-        )}"></ternary-codebase-context> tag listing the selected file paths (comma-separated). Do not explain this tag; just output it.
+2) At the top of your visible answer (right after </think>), output a <ternary-codebase-context files="${rankedPaths.join(", ")}"></ternary-codebase-context> tag listing the selected file paths (comma-separated). Do not explain this tag; just output it.
 3) Use Ternary tags (<ternary-write>, <ternary-rename>, <ternary-delete>, <ternary-add-dependency>) for actions.
 4) If you reference attachments like TERNARY_ATTACHMENT_X in your reasoning, ensure that when writing files you include their content inside <ternary-write> blocks so they persist.`,
       } as const;
@@ -238,6 +230,16 @@ export default async function handler(
       model: modelKey, // Ensure the resolved model is used
       messages: finalMessages, // Use the potentially modified messages
     };
+
+    // Log the payload we will forward to the gateway
+    try {
+      const forwardSize = Buffer.byteLength(JSON.stringify(payload), "utf8");
+      console.log("[ENGINE] Forwarding payload to gateway", {
+        url: `${LITELLM_ENDPOINT}/chat/completions`,
+        sizeBytes: forwardSize,
+        payload,
+      });
+    } catch {}
 
     // Forward the request to the LiteLLM endpoint
     // Forward request id for tracing if present
@@ -269,6 +271,12 @@ export default async function handler(
     });
 
     if (body.stream && response.body) {
+      // Log streaming response details without consuming body
+      console.log("[ENGINE] Gateway response (streaming)", {
+        status: response.status,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries()),
+      });
       // Strengthen SSE streaming behavior
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
@@ -278,8 +286,17 @@ export default async function handler(
     } else {
       // For non-streaming responses, forward upstream body as-is when possible
       const text = await response.text();
+      // Log gateway response body (non-streaming)
+      console.log("[ENGINE] Gateway response (non-streaming) raw text length", text.length);
       try {
         const data = JSON.parse(text);
+        // Log parsed JSON that will be forwarded to the app
+        console.log("[ENGINE] Forwarding back to app (non-streaming JSON)", {
+          status: response.status,
+          ok: response.ok,
+          bodySizeBytes: Buffer.byteLength(text, "utf8"),
+          body: data,
+        });
         // Pass through upstream payload while wrapping minimal metadata
         res.status(response.status).json({
           success: response.ok,
@@ -289,6 +306,11 @@ export default async function handler(
         });
       } catch {
         // Upstream did not return JSON; forward raw text
+        console.log("[ENGINE] Forwarding back to app (non-streaming TEXT)", {
+          status: response.status,
+          ok: response.ok,
+          bodySizeBytes: Buffer.byteLength(text, "utf8"),
+        });
         res.status(response.status).send(text);
       }
       return; // Explicitly return to end execution.
@@ -319,9 +341,7 @@ async function optimizeContextWithSmartFiles(
   for (const f of files.slice(0, MAX_FILES)) {
     let c = f.content ?? "";
     if (c.length > MAX_FILE_CHARS) {
-      c =
-        c.slice(0, MAX_FILE_CHARS) +
-        "\n[...TRUNCATED BY ENGINE FOR CONTEXT SIZE...]";
+      c = c.slice(0, MAX_FILE_CHARS) + "\n[...TRUNCATED BY ENGINE FOR CONTEXT SIZE...]";
     }
     if (total + c.length > MAX_TOTAL_CHARS) break;
     trimmed.push({ path: f.path, content: c });
