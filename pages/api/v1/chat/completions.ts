@@ -62,8 +62,8 @@ const LITELLM_ENDPOINT =
 
 // Define available models for routing logic using the correct public model names.
 const AVAILABLE_MODELS = [
-  "gemini-2.5-pro",
-  "gemini-2.5-flash",
+  "gemini/gemini-2.5-pro",
+  "gemini/gemini-2.5-flash",
   "openrouter/meta-llama/llama-3-8b-instruct:free",
   "openrouter/mistralai/mistral-7b-instruct:free",
 ];
@@ -91,9 +91,9 @@ function resolveModel(requestedModel: string): string {
   if (requestedModel === "auto") {
     // Prioritize models for "auto" mode based on the allowed list, using correct public names
     const autoPriority = [
-      "gemini-2.5-pro",
+      "gemini/gemini-2.5-pro",
       "gpt-3.5-turbo",
-      "gemini-2.5-flash",
+      "gemini/gemini-2.5-flash",
       "openrouter/meta-llama/llama-3-8b-instruct:free",
       "openrouter/mistralai/mistral-7b-instruct:free",
     ];
