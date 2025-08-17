@@ -25,7 +25,7 @@ export default async function handler(
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL || "https://ternary-beta-domain.vercel.app"}/api/figma/callback`,
-      scope: "file_content:read,files:read,current_user:read",
+      scope: "current_user:read,projects:read,files:read,file_content:read,file_metadata:read",
       state: state,
       response_type: "code",
     });
