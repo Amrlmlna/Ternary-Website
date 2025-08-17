@@ -37,7 +37,7 @@ export default async function handler(
         "Authorization": `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
       },
       body: new URLSearchParams({
-        redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/figma/callback`,
+        redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL || "https://ternary-beta-domain.vercel.app"}/api/figma/callback`,
         code: code as string,
         grant_type: "authorization_code",
       }),
@@ -59,109 +59,21 @@ export default async function handler(
 
     console.log("✅ Figma OAuth successful for user:", user_id_string);
 
-    // Create deep link URL following the Stripe webhook pattern
-    const deepLinkParams = new URLSearchParams({
-      token: access_token,
-      refreshToken: refresh_token,
-      expiresIn: expires_in.toString(),
-      userId: user_id_string,
-    });
-
-    const deepLinkUrl = `ternary://figma-oauth-return?${deepLinkParams.toString()}`;
-    console.log("🔗 Redirecting to deep link:", deepLinkUrl);
-
-    // Create success page URL as fallback
-    const host = req.headers.host || "ternary.app";
+    // Create success page URL with tokens (following Stripe pattern)
+    const host = req.headers.host || "ternary-beta-domain.vercel.app";
     const protocol = /^localhost/.test(host) ? "http" : "https";
     const successUrl = new URL("/figma-success", `${protocol}://${host}`);
-    successUrl.searchParams.append("status", "success");
+    
+    // Add tokens as URL parameters (like Stripe does with apiKey)
+    successUrl.searchParams.append("token", access_token);
+    successUrl.searchParams.append("refreshToken", refresh_token);
+    successUrl.searchParams.append("expiresIn", expires_in.toString());
+    successUrl.searchParams.append("userId", user_id_string);
 
-    // Return HTML page that attempts deep link and provides fallback
-    const html = `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Figma Connected Successfully</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            text-align: center;
-            background: #f8fafc;
-        }
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .success-icon {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-        h1 {
-            color: #1a202c;
-            margin-bottom: 16px;
-        }
-        p {
-            color: #4a5568;
-            margin-bottom: 24px;
-            line-height: 1.5;
-        }
-        .btn {
-            display: inline-block;
-            background: #3182ce;
-            color: white;
-            padding: 12px 24px;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 500;
-            margin: 8px;
-        }
-        .btn:hover {
-            background: #2c5aa0;
-        }
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-        .btn-secondary:hover {
-            background: #cbd5e0;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="success-icon">✅</div>
-        <h1>Figma Connected Successfully!</h1>
-        <p>Your Figma account has been connected to Ternary. You can now close this window and return to the Ternary app.</p>
-        
-        <a href="${deepLinkUrl}" class="btn">Open Ternary App</a>
-        <a href="${successUrl.toString()}" class="btn btn-secondary">Continue in Browser</a>
-        
-        <script>
-            // Attempt automatic deep link redirect
-            setTimeout(() => {
-                window.location.href = "${deepLinkUrl}";
-            }, 1000);
-            
-            // Fallback: redirect to success page after 5 seconds
-            setTimeout(() => {
-                if (document.visibilityState === 'visible') {
-                    window.location.href = "${successUrl.toString()}";
-                }
-            }, 5000);
-        </script>
-    </div>
-</body>
-</html>`;
+    console.log("🔗 Redirecting to success page:", successUrl.toString());
 
-    res.setHeader('Content-Type', 'text/html');
-    return res.status(200).send(html);
+    // Redirect to success page (like Stripe does)
+    return res.redirect(302, successUrl.toString());
 
   } catch (error) {
     console.error("❌ Error in Figma OAuth callback:", error);
