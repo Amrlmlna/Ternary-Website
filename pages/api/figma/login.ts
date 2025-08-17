@@ -22,10 +22,29 @@ export default async function handler(
     // Store state in session or temporary storage (you might want to use Redis in production)
     // For now, we'll include it in the URL and validate it in the callback
 
+    // Build scopes to match Electron app/reference
+    const baseScopes = [
+      "current_user:read",
+      "file_content:read",
+      "file_comments:read",
+      "projects:read",
+      "library_content:read",
+      "library_assets:read",
+      "file_dev_resources:read",
+      "webhooks:read",
+      "webhooks:write",
+    ];
+    const includeEnterprise = process.env.FIGMA_ENABLE_ENTERPRISE_SCOPES === "true";
+    const enterpriseScopes = includeEnterprise ? [
+      "file_variables:read",
+      // "file_variables:write",
+    ] : [];
+    const scopes = [...baseScopes, ...enterpriseScopes].join(",");
+
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL || "https://ternary-beta-domain.vercel.app"}/api/figma/callback`,
-      scope: "current_user:read,projects:read,files:read,file_content:read,file_metadata:read",
+      scope: scopes,
       state: state,
       response_type: "code",
     });
