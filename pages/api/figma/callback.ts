@@ -29,50 +29,15 @@ export default async function handler(
       return res.status(500).json({ error: "Figma credentials not configured" });
     }
 
-    // Exchange authorization code for access token
-    const tokenResponse = await fetch("https://api.figma.com/v1/oauth/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
-      },
-      body: new URLSearchParams({
-        redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL || "https://ternary-beta-domain.vercel.app"}/api/figma/callback`,
-        code: code as string,
-        grant_type: "authorization_code",
-      }),
-    });
-
-    if (!tokenResponse.ok) {
-      const errorText = await tokenResponse.text();
-      console.error("❌ Figma token exchange failed:", errorText);
-      return res.status(400).json({ error: "Failed to exchange authorization code" });
-    }
-
-    const tokenData = await tokenResponse.json();
-    const { access_token, refresh_token, expires_in, user_id_string } = tokenData;
-
-    if (!access_token || !refresh_token || !expires_in || !user_id_string) {
-      console.error("❌ Invalid token response from Figma:", tokenData);
-      return res.status(400).json({ error: "Invalid response from Figma OAuth" });
-    }
-
-    console.log("✅ Figma OAuth successful for user:", user_id_string);
-
-    // Create success page URL with tokens (following Stripe pattern)
+    // Instead of exchanging the code here, redirect with code & state
+    // The Electron app expects to receive code & state via deep link and will exchange them itself.
     const host = req.headers.host || "ternary-beta-domain.vercel.app";
     const protocol = /^localhost/.test(host) ? "http" : "https";
     const successUrl = new URL("/figma-success", `${protocol}://${host}`);
-    
-    // Add tokens as URL parameters (like Stripe does with apiKey)
-    successUrl.searchParams.append("token", access_token);
-    successUrl.searchParams.append("refreshToken", refresh_token);
-    successUrl.searchParams.append("expiresIn", expires_in.toString());
-    successUrl.searchParams.append("userId", user_id_string);
+    successUrl.searchParams.append("code", code as string);
+    successUrl.searchParams.append("state", state as string);
 
-    console.log("🔗 Redirecting to success page:", successUrl.toString());
-
-    // Redirect to success page (like Stripe does)
+    console.log("🔗 Redirecting to success page with code & state:", successUrl.toString());
     return res.redirect(302, successUrl.toString());
 
   } catch (error) {
