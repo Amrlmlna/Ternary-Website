@@ -48,7 +48,8 @@ export default function AuthCallback() {
             setMessage("Authentication successful! Redirecting back to app...");
             // Redirect to device authorization page, then deeplink back to app
             setTimeout(() => {
-              const deeplink = `ternary://auth/success?user_id=${data.session.user.id}&email=${encodeURIComponent(data.session.user.email || '')}`;
+              // App listens for host "auth-success" and reads "email" from query
+              const deeplink = `ternary://auth-success?email=${encodeURIComponent(data.session.user.email || '')}`;
               window.location.href = deeplink;
               // Fallback: redirect to device page if deeplink fails
               setTimeout(() => router.push("/auth/device"), 1000);

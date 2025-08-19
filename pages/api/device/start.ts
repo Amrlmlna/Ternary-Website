@@ -39,7 +39,7 @@ export default async function handler(
     // Generate device code and user code
     const deviceCode = uuidv4();
     const userCode = generateUserCode();
-    const verificationUri = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://ternary.studio'}/auth/device`;
+    const verificationUri = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ternary-beta-domain.vercel.app'}/auth/device`;
     const expiresIn = 600; // 10 minutes
     const interval = 5; // Poll every 5 seconds
 
