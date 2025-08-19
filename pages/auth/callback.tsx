@@ -18,60 +18,63 @@ export default function AuthCallback() {
         if (href.includes("code=")) {
           const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(href);
           if (exchangeError) throw exchangeError;
+        } else {
+          // 2) Otherwise check existing session
+          const { data, error } = await supabase.auth.getSession();
+          if (error) throw error;
+
+          if (!data.session) {
+            // 3) Fallback: ensure user is fetched (covers some edge cases)
+            const { error: userError } = await supabase.auth.getUser();
+            if (userError) throw userError;
+          }
         }
 
-        // 2) Get current session
-        const { data, error } = await supabase.auth.getSession();
-        if (error) throw error;
+        // Check for deeplink return parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnTo = urlParams.get("return_to") || sessionStorage.getItem("auth_return_to");
+        const state = urlParams.get("state") || sessionStorage.getItem("auth_state");
 
-        if (data.session) {
-          // Create/update profile
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .upsert({
-              id: data.session.user.id,
-              email: data.session.user.email,
-              full_name: data.session.user.user_metadata?.full_name,
-              avatar_url: data.session.user.user_metadata?.avatar_url,
-              updated_at: new Date().toISOString(),
+        if (returnTo && returnTo.startsWith("ternary://")) {
+          // Desktop app flow - mint ticket and redirect
+          try {
+            const response = await fetch("/api/auth/mint-ticket", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ state, audience: "desktop-app" }),
             });
 
-          if (profileError) {
-            console.error('Profile upsert error:', profileError);
-          }
-
-          setStatus("success");
-          
-          // Handle app deeplink flow (no device-code)
-          const deeplink = router.query.deeplink === '1';
-          if (deeplink) {
-            setMessage("Authentication successful! Redirecting back to app...");
-            // Redirect to device authorization page, then deeplink back to app
+            if (!response.ok) throw new Error("Failed to mint ticket");
+            
+            const { ticket } = await response.json();
+            const redirectUrl = `${returnTo}?ticket=${encodeURIComponent(ticket)}&state=${encodeURIComponent(state || "")}`;
+            
+            setStatus("success");
+            setMessage("Berhasil masuk! Mengalihkan ke aplikasi...");
+            
+            // Clear stored parameters
+            sessionStorage.removeItem("auth_return_to");
+            sessionStorage.removeItem("auth_state");
+            
+            // Redirect to desktop app
             setTimeout(() => {
-              // App listens for host "auth-success" and reads "email" from query
-              const link = `ternary://auth-success?email=${encodeURIComponent(data.session.user.email || '')}`;
-              window.location.href = link;
-              // Fallback: redirect to device page if deeplink fails
-              setTimeout(() => router.push("/"), 1000);
-            }, 2000);
-          } else {
-            setMessage("Successfully signed in! Redirecting...");
-            setTimeout(() => router.push("/"), 2000);
+              window.location.href = redirectUrl;
+            }, 1000);
+            return;
+          } catch (ticketError) {
+            console.error("Ticket minting error:", ticketError);
+            // Fall back to normal web redirect
           }
-          return;
         }
 
-        // 3) Fallback: ensure user is fetched (covers some edge cases)
-        const { error: userError } = await supabase.auth.getUser();
-        if (userError) throw userError;
-
+        // Normal web flow
         setStatus("success");
-        setMessage("Successfully signed in! Redirecting...");
+        setMessage("Berhasil masuk! Mengalihkan...");
         setTimeout(() => router.push("/"), 2000);
       } catch (error) {
         console.error("Auth callback error:", error);
         setStatus("error");
-        setMessage("Authentication failed. Please try again.");
+        setMessage("Gagal masuk. Silakan coba lagi.");
       }
     };
 
