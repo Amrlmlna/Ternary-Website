@@ -42,17 +42,17 @@ export default function AuthCallback() {
 
           setStatus("success");
           
-          // Check if this is from device authorization flow
-          const deviceRedirect = router.query.device_redirect;
-          if (deviceRedirect === 'true') {
+          // Handle app deeplink flow (no device-code)
+          const deeplink = router.query.deeplink === '1';
+          if (deeplink) {
             setMessage("Authentication successful! Redirecting back to app...");
             // Redirect to device authorization page, then deeplink back to app
             setTimeout(() => {
               // App listens for host "auth-success" and reads "email" from query
-              const deeplink = `ternary://auth-success?email=${encodeURIComponent(data.session.user.email || '')}`;
-              window.location.href = deeplink;
+              const link = `ternary://auth-success?email=${encodeURIComponent(data.session.user.email || '')}`;
+              window.location.href = link;
               // Fallback: redirect to device page if deeplink fails
-              setTimeout(() => router.push("/auth/device"), 1000);
+              setTimeout(() => router.push("/"), 1000);
             }, 2000);
           } else {
             setMessage("Successfully signed in! Redirecting...");

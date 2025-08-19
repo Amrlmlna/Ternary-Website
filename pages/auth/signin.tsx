@@ -19,9 +19,11 @@ export default function SignInPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         // Redirect based on where they came from
-        const redirectTo = router.query.redirect_to as string;
+        const redirectTo = router.query.redirect_to as string | undefined;
+        const deeplink = router.query.deeplink === '1';
         if (redirectTo) {
-          router.push(redirectTo);
+          const url = deeplink ? `${redirectTo}?deeplink=1` : redirectTo;
+          router.push(url);
         } else {
           router.push('/profile');
         }
@@ -50,9 +52,11 @@ export default function SignInPage() {
         }
 
         // Redirect after successful signin
-        const redirectTo = router.query.redirect_to as string;
+        const redirectTo = router.query.redirect_to as string | undefined;
+        const deeplink = router.query.deeplink === '1';
         if (redirectTo) {
-          router.push(redirectTo);
+          const url = deeplink ? `${redirectTo}?deeplink=1` : redirectTo;
+          router.push(url);
         } else {
           router.push('/profile');
         }
@@ -62,13 +66,7 @@ export default function SignInPage() {
     return () => subscription.unsubscribe();
   }, [router]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
+  // Show the form even while loading to avoid blank page UX
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
