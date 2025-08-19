@@ -7,6 +7,7 @@ const REPO = process.env.TERNARY_RELEASE_REPO || "Ternary-App";
 export type DownloadAsset = {
   name: string;
   url: string;
+  id?: number;
   size?: number;
   contentType?: string;
 };
@@ -82,27 +83,26 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       // Simulate the same shape as a normal release fetch
       const release = first;
       const assets = Array.isArray(release.assets) ? release.assets : [];
+      const mapAsset = (a: any): DownloadAsset => ({
+        name: a.name,
+        url: `/api/download?id=${encodeURIComponent(String(a.id))}&name=${encodeURIComponent(
+          a.name
+        )}`,
+        id: a.id,
+        size: a.size,
+        contentType: a.content_type,
+      });
       const pick = (predicate: (n: string) => boolean): DownloadAsset | undefined => {
         const a = assets.find((x: any) => predicate(x.name));
         if (!a) return undefined;
-        return {
-          name: a.name,
-          url: a.browser_download_url,
-          size: a.size,
-          contentType: a.content_type,
-        };
+        return mapAsset(a);
       };
       const data: DownloadsResponse = {
         version: (release.name as string) || (release.tag_name as string) || "",
         tag: release.tag_name || "",
         publishedAt: release.published_at || null,
         htmlUrl: release.html_url,
-        assets: assets.map((a: any) => ({
-          name: a.name,
-          url: a.browser_download_url,
-          size: a.size,
-          contentType: a.content_type,
-        })),
+        assets: assets.map((a: any) => mapAsset(a)),
         platforms: {
           windowsExe: pick((n) => n.toLowerCase().endsWith(".setup.exe")),
           windowsNupkg: pick((n) => n.toLowerCase().endsWith("-full.nupkg")),
@@ -127,15 +127,20 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const release = await resp.json();
     const assets = Array.isArray(release.assets) ? release.assets : [];
 
+    const mapAsset = (a: any): DownloadAsset => ({
+      name: a.name,
+      url: `/api/download?id=${encodeURIComponent(String(a.id))}&name=${encodeURIComponent(
+        a.name
+      )}`,
+      id: a.id,
+      size: a.size,
+      contentType: a.content_type,
+    });
+
     const pick = (predicate: (n: string) => boolean): DownloadAsset | undefined => {
       const a = assets.find((x: any) => predicate(x.name));
       if (!a) return undefined;
-      return {
-        name: a.name,
-        url: a.browser_download_url,
-        size: a.size,
-        contentType: a.content_type,
-      };
+      return mapAsset(a);
     };
 
     const data: DownloadsResponse = {
@@ -143,12 +148,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       tag: release.tag_name || "",
       publishedAt: release.published_at || null,
       htmlUrl: release.html_url,
-      assets: assets.map((a: any) => ({
-        name: a.name,
-        url: a.browser_download_url,
-        size: a.size,
-        contentType: a.content_type,
-      })),
+      assets: assets.map((a: any) => mapAsset(a)),
       platforms: {
         windowsExe: pick((n) => n.toLowerCase().endsWith(".setup.exe")),
         windowsNupkg: pick((n) => n.toLowerCase().endsWith("-full.nupkg")),
