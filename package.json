@@ -11,6 +11,7 @@
     "setup": "node setup.js"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.39.7",
     "@tailwindcss/typography": "^0.5.10",
     "autoprefixer": "^10.4.14",
