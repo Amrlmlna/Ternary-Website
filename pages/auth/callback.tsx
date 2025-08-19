@@ -18,21 +18,45 @@ export default function AuthCallback() {
         if (href.includes("code=")) {
           const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(href);
           if (exchangeError) throw exchangeError;
-
-          setStatus("success");
-          setMessage("Berhasil masuk! Mengalihkan...");
-          setTimeout(() => router.push("/"), 2000);
-          return;
         }
 
-        // 2) Otherwise check existing session
+        // 2) Get current session
         const { data, error } = await supabase.auth.getSession();
         if (error) throw error;
 
         if (data.session) {
+          // Create/update profile
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert({
+              id: data.session.user.id,
+              email: data.session.user.email,
+              full_name: data.session.user.user_metadata?.full_name,
+              avatar_url: data.session.user.user_metadata?.avatar_url,
+              updated_at: new Date().toISOString(),
+            });
+
+          if (profileError) {
+            console.error('Profile upsert error:', profileError);
+          }
+
           setStatus("success");
-          setMessage("Berhasil masuk! Mengalihkan...");
-          setTimeout(() => router.push("/"), 2000);
+          
+          // Check if this is from device authorization flow
+          const deviceRedirect = router.query.device_redirect;
+          if (deviceRedirect === 'true') {
+            setMessage("Authentication successful! Redirecting back to app...");
+            // Redirect to device authorization page, then deeplink back to app
+            setTimeout(() => {
+              const deeplink = `ternary://auth/success?user_id=${data.session.user.id}&email=${encodeURIComponent(data.session.user.email || '')}`;
+              window.location.href = deeplink;
+              // Fallback: redirect to device page if deeplink fails
+              setTimeout(() => router.push("/auth/device"), 1000);
+            }, 2000);
+          } else {
+            setMessage("Successfully signed in! Redirecting...");
+            setTimeout(() => router.push("/"), 2000);
+          }
           return;
         }
 
@@ -41,12 +65,12 @@ export default function AuthCallback() {
         if (userError) throw userError;
 
         setStatus("success");
-        setMessage("Berhasil masuk! Mengalihkan...");
+        setMessage("Successfully signed in! Redirecting...");
         setTimeout(() => router.push("/"), 2000);
       } catch (error) {
         console.error("Auth callback error:", error);
         setStatus("error");
-        setMessage("Gagal masuk. Silakan coba lagi.");
+        setMessage("Authentication failed. Please try again.");
       }
     };
 
