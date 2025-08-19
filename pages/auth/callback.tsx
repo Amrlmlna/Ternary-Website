@@ -35,19 +35,30 @@ export default function AuthCallback() {
         const returnTo = urlParams.get("return_to") || sessionStorage.getItem("auth_return_to");
         const state = urlParams.get("state") || sessionStorage.getItem("auth_state");
 
+        console.log("Debug auth callback:", { returnTo, state, urlParams: Object.fromEntries(urlParams) });
+
         if (returnTo && returnTo.startsWith("ternary://")) {
           // Desktop app flow - mint ticket and redirect
           try {
+            console.log("Attempting to mint ticket for desktop app...");
             const response = await fetch("/api/auth/mint-ticket", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ state, audience: "desktop-app" }),
             });
 
-            if (!response.ok) throw new Error("Failed to mint ticket");
+            console.log("Mint ticket response:", response.status, response.ok);
+
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.error("Mint ticket failed:", errorText);
+              throw new Error(`Failed to mint ticket: ${response.status} ${errorText}`);
+            }
             
             const { ticket } = await response.json();
             const redirectUrl = `${returnTo}?ticket=${encodeURIComponent(ticket)}&state=${encodeURIComponent(state || "")}`;
+            
+            console.log("Redirecting to:", redirectUrl);
             
             setStatus("success");
             setMessage("Berhasil masuk! Mengalihkan ke aplikasi...");
@@ -58,12 +69,15 @@ export default function AuthCallback() {
             
             // Redirect to desktop app
             setTimeout(() => {
+              console.log("Executing redirect...");
               window.location.href = redirectUrl;
             }, 1000);
             return;
           } catch (ticketError) {
             console.error("Ticket minting error:", ticketError);
-            // Fall back to normal web redirect
+            setStatus("error");
+            setMessage(`Gagal mengalihkan ke aplikasi: ${ticketError instanceof Error ? ticketError.message : String(ticketError)}`);
+            return;
           }
         }
 
